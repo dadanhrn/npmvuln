@@ -4,7 +4,9 @@ import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.apache.spark.sql.functions.{col, trim, lag, monotonically_increasing_id, udf}
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.expressions.{UserDefinedFunction, Window}
-import com.github.zafarkhaja.semver.Version
+import com.vdurmont.semver4j.Semver
+import com.vdurmont.semver4j.Semver.SemverType
+import com.vdurmont.semver4j.Requirement
 
 object ReleaseDfBuilder {
 
@@ -18,8 +20,11 @@ object ReleaseDfBuilder {
   def build(spark: SparkSession, path: String, advisoryDf: DataFrame): DataFrame = {
 
     // Define version constraint comparation UDF
-    val checkConstraint: UserDefinedFunction = udf[Boolean, String, String]((version, constraint) => {
-      Version.valueOf(version.trim).satisfies(constraint.trim)
+    val checkConstraint: UserDefinedFunction = udf[Boolean, String, String]((version_str, constraint_str) => {
+      val version: Semver = new Semver(version_str, SemverType.NPM)
+      val constraint: Requirement = Requirement.buildNPM(constraint_str)
+
+      version.satisfies(constraint)
     })
 
     // Define format
