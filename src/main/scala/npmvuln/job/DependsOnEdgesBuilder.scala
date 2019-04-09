@@ -3,7 +3,6 @@ package npmvuln.job
 import org.apache.spark.sql.{DataFrame, Encoders}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.graphx.{VertexId, Edge}
-import com.github.zafarkhaja.semver.Version
 import npmvuln.props.DependsOnEdge
 
 object DependsOnEdgesBuilder {
