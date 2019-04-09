@@ -10,7 +10,7 @@ libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-graphx" % "2.4.0" % Provided,
   "org.apache.spark" %% "spark-sql" % "2.4.0" % Provided,
 
-  "com.vdurmont" % "semver4j" % "2.2.0"
+  "com.github.gundy" % "semver4j" % "0.16.4"
 )
 
 assemblyMergeStrategy in assembly := {
