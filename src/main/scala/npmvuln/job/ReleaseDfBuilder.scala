@@ -21,10 +21,7 @@ object ReleaseDfBuilder {
 
     // Define version constraint comparation UDF
     val checkConstraint: UserDefinedFunction = udf[Boolean, String, String]((version_str, constraint_str) => {
-      val version: Semver = new Semver(version_str, SemverType.NPM)
-      val constraint: Requirement = Requirement.buildNPM(constraint_str)
-
-      version.satisfies(constraint)
+      new Semver(version_str, SemverType.NPM).satisfies(constraint_str)
     })
 
     // Define format
