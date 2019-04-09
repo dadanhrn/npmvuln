@@ -2,6 +2,7 @@ package npmvuln.job
 
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.apache.spark.sql.types._
+import org.apache.spark.sql.functions.{col, trim}
 
 object AdvisoryDfBuilder {
   val advisorySchema: StructType = StructType(Array(
@@ -33,5 +34,18 @@ object AdvisoryDfBuilder {
 
       // Load file
       .load(path)
+
+      // Trim string values
+      .withColumn("CWE", trim(col("CWE")))
+      .withColumn("Id", trim(col("Id")))
+      .withColumn("Name", trim(col("Name")))
+      .withColumn("Package", trim(col("Package")))
+      .withColumn("References", trim(col("References")))
+      .withColumn("Severity", trim(col("Severity")))
+      .withColumn("Versions", trim(col("Versions")))
+
+      // Remove malicious packages
+      .filter(col("Name") =!= "Malicious Package")
+      .filter(col("Versions") =!= "*")
   }
 }

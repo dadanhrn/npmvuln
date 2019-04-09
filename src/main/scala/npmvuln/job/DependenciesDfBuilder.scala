@@ -1,5 +1,6 @@
 package npmvuln.job
 
+import org.apache.spark.sql.functions.{col, trim}
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
@@ -27,6 +28,12 @@ object DependenciesDfBuilder {
 
       // Load file
       .load(path)
+
+      // Trim string values
+      .withColumn("Project", trim(col("Project")))
+      .withColumn("Release", trim(col("Release")))
+      .withColumn("Dependency", trim(col("Dependency")))
+      .withColumn("Constraint", trim(col("Constraint")))
   }
 
 }

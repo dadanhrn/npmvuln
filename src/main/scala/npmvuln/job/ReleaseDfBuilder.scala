@@ -1,7 +1,7 @@
 package npmvuln.job
 
 import org.apache.spark.sql.{DataFrame, SparkSession}
-import org.apache.spark.sql.functions.{col, lag, monotonically_increasing_id, udf}
+import org.apache.spark.sql.functions.{col, trim, lag, monotonically_increasing_id, udf}
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.expressions.{UserDefinedFunction, Window}
 import com.github.zafarkhaja.semver.Version
@@ -19,7 +19,7 @@ object ReleaseDfBuilder {
 
     // Define version constraint comparation UDF
     val checkConstraint: UserDefinedFunction = udf[Boolean, String, String]((version, constraint) => {
-      Version.valueOf(version).satisfies(constraint)
+      Version.valueOf(version.trim).satisfies(constraint.trim)
     })
 
     // Define format
@@ -37,6 +37,10 @@ object ReleaseDfBuilder {
 
       // Load file
       .load(path)
+
+      // Trim string values
+      .withColumn("Project", trim(col("Project")))
+      .withColumn("Release", trim(col("Release")))
 
       // Add ID field for every release (-1 downwards)
       .withColumn("ReleaseId", (monotonically_increasing_id + 1) * -1)
