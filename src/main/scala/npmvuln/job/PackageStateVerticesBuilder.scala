@@ -38,6 +38,7 @@ object PackageStateVerticesBuilder {
         // Attach if list present
         pair._2 match {
           case Some(lsVuln) => pair._1.vulnRecords = lsVuln
+          case None => pair._1.vulnRecords = Array()
         }
 
         // Return PackageState vertex properties
