@@ -26,7 +26,7 @@ object Main extends App {
 
   // Build release dataframe from libio-versions.csv
   val libioVersionsPath: String = "file:///home/cerdas/Documents/dadanhrn/replicationpackage/data/libio-versions1.csv"
-  val releasesDf: DataFrame = ReleaseDfBuilder.build(spark, libioVersionsPath, advisoryDf).cache()
+  val releasesDf: DataFrame = ReleaseDfBuilder.build(spark, libioVersionsPath).cache()
 
   // Build project dataframe from release dataframe
   val projectsDf: DataFrame = ProjectDfBuilder.build(releasesDf).cache()
@@ -35,18 +35,20 @@ object Main extends App {
   val libioDependenciesPath: String = "file:///home/cerdas/Documents/dadanhrn/replicationpackage/data/libio-dependencies1.csv"
   val dependenciesDf: DataFrame = DependenciesDfBuilder.build(spark, libioDependenciesPath).cache()
 
-  releasesDf.filter(releasesDf("Project") === "marked").show()
-
   /***************************
   * Build vertices and edges *
   ***************************/
+  // Get vulnerability properties
+  val vulnProperties: RDD[(VertexId, Array[VulnProperties])] = VulnerabilityDfBuilder
+    .build(releasesDf, advisoryDf)
+
   // Build Package vertices RDD
   val packageVertices: RDD[(VertexId, PackageVertex)] = PackageVerticesBuilder
     .build(projectsDf)
 
   // Build PackageState vertices RDD
   val packageStateVertices: RDD[(VertexId, PackageStateVertex)] = PackageStateVerticesBuilder
-    .build(releasesDf)
+    .build(releasesDf, vulnProperties)
 
   // Build SNAPSHOT edges RDD
   val snapshotEdges: RDD[Edge[SnapshotEdge]] = SnapshotEdgesBuilder
@@ -55,6 +57,8 @@ object Main extends App {
   // Build DEPENDS_ON edges RDD
   val dependsOnEdges: RDD[Edge[DependsOnEdge]] = DependsOnEdgesBuilder
     .build(dependenciesDf, projectsDf, releasesDf)
+
+  println(packageStateVertices.filter(x => x._2.packageName == "marked" && x._2.vulnRecords.length > 0).collect())
 
   /**************
   * Build graph *

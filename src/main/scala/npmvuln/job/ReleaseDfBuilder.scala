@@ -15,12 +15,7 @@ object ReleaseDfBuilder {
     StructField("Date", TimestampType, false)
   ))
 
-  def build(spark: SparkSession, path: String, advisoryDf: DataFrame): DataFrame = {
-
-    // Define version constraint comparation UDF
-    val checkConstraint: UserDefinedFunction = udf[Boolean, String, String]((version, constraint) => {
-      SemVer.satisfies(version, constraint)
-    })
+  def build(spark: SparkSession, path: String): DataFrame = {
 
     // Define format
     spark.read
@@ -50,11 +45,6 @@ object ReleaseDfBuilder {
         lag("Date", -1, null)
           .over(Window.partitionBy("Project").orderBy("Date")))
 
-      // Join with advisory dataframe
-      .join(advisoryDf,
-        (col("Project") === advisoryDf("Package")) &&
-          (checkConstraint(col("Release"), advisoryDf("Versions"))),
-        "left_outer")
   }
 
 }

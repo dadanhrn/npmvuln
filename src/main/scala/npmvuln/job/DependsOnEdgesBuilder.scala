@@ -16,13 +16,13 @@ object DependsOnEdgesBuilder {
 
       // Build edges and properties
       .map(func = row => {
-      val dependentId: VertexId = row.getAs[VertexId]("ReleaseId")
-      val dependencyId: VertexId = row.getAs[VertexId]("ProjectId")
-      val constraint: String = row.getAs[String]("Constraint")
-      val dependencyProp: DependsOnEdge = new DependsOnEdge(constraint)
+        val dependentId: VertexId = row.getAs[VertexId]("ReleaseId")
+        val dependencyId: VertexId = row.getAs[VertexId]("ProjectId")
+        val constraint: String = row.getAs[String]("Constraint")
+        val dependencyProp: DependsOnEdge = new DependsOnEdge(constraint)
 
-      new Edge[DependsOnEdge](dependentId, dependencyId, dependencyProp)
-    }) (Encoders.bean(classOf[Edge[DependsOnEdge]]))
+        new Edge[DependsOnEdge](dependentId, dependencyId, dependencyProp)
+      }) (Encoders.bean(classOf[Edge[DependsOnEdge]]))
 
       // Get RDD
       .rdd

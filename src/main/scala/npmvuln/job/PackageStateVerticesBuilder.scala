@@ -4,11 +4,13 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{DataFrame, Encoders}
 import org.apache.spark.graphx.VertexId
 import java.sql.Timestamp
-import npmvuln.props.PackageStateVertex
+
+import npmvuln.props._
 
 object PackageStateVerticesBuilder {
 
-  def build(releasesDf: DataFrame): RDD[(VertexId, PackageStateVertex)] = {
+  def build(releasesDf: DataFrame, vulnProperties: RDD[(VertexId, Array[VulnProperties])]):
+  RDD[(VertexId, PackageStateVertex)] = {
 
     // Source dataset
     releasesDf
@@ -27,6 +29,20 @@ object PackageStateVerticesBuilder {
 
       // Get RDD
       .rdd
+
+      // Join with vulnerabilities RDD
+      .leftOuterJoin(vulnProperties)
+
+      // Attach list of vulnerabilities into PackageState vertex
+      .mapValues(pair => {
+        // Attach if list present
+        pair._2 match {
+          case Some(lsVuln) => pair._1.vulnRecords = lsVuln
+        }
+
+        // Return PackageState vertex properties
+        pair._1
+      })
   }
 
 }

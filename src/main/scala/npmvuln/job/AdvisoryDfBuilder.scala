@@ -47,5 +47,6 @@ object AdvisoryDfBuilder {
       // Remove malicious packages
       .filter(col("Name") =!= "Malicious Package")
       .filter(col("Versions") =!= "*")
+
   }
 }
