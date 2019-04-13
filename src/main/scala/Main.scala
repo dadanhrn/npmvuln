@@ -58,8 +58,6 @@ object Main extends App {
   val dependsOnEdges: RDD[Edge[DependsOnEdge]] = DependsOnEdgesBuilder
     .build(dependenciesDf, projectsDf, releasesDf)
 
-  println(packageStateVertices.filter(x => x._2.packageName == "marked" && x._2.vulnRecords.length > 0).collect())
-
   /**************
   * Build graph *
   **************/
