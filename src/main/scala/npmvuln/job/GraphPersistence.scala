@@ -1,4 +1,4 @@
-package npmvuln
+package npmvuln.job
 
 import org.apache.spark.graphx.{Graph, VertexId, Edge}
 import npmvuln.props._
