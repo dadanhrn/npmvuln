@@ -72,4 +72,17 @@ object Main extends App {
   // Build graph
   val graph: Graph[VertexProperties, EdgeProperties] = Graph(vertexRDD, edgeRDD).cache()
 
+  /*****************
+  * Execute Pregel *
+  *****************/
+  // Execute Pregel program
+  val result: Graph[VertexProperties, EdgeProperties] = VulnerabilityScan.run(graph)
+
+  val affectedpkg: Long = result.vertices
+    .map(_._2)
+    .filter(_.isInstanceOf[PackageVertex])
+    .map(_.asInstanceOf[PackageVertex])
+    .filter(_.vulnerabilities.length > 0)
+    .count
+  println("Affected package: " + affectedpkg.toString)
 }
