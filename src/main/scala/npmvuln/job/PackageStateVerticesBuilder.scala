@@ -35,9 +35,17 @@ object PackageStateVerticesBuilder {
 
       // Attach list of vulnerabilities into PackageState vertex
       .mapValues(pair => {
-        // Attach if list present
+        // Attach if list present. If not, give empty array.
         pair._2 match {
-          case Some(lsVuln) => pair._1.vulnRecords = lsVuln
+          case Some(lsVuln) => {
+            // Set source of vulnerability to the PackageStateVertex it's on
+            lsVuln.map(vulnProp => {
+              vulnProp.immediateSource = pair._1
+              vulnProp
+            })
+            pair._1.vulnRecords = lsVuln
+          }
+
           case None => pair._1.vulnRecords = Array()
         }
 

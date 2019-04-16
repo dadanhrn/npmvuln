@@ -4,6 +4,8 @@ import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.apache.spark.sql.functions.{col, trim, lag, monotonically_increasing_id, udf}
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.expressions.{UserDefinedFunction, Window}
+import java.sql.Timestamp
+import java.time.Instant
 import com.github.gundy.semver4j.SemVer
 
 object ReleaseDfBuilder {
@@ -16,6 +18,9 @@ object ReleaseDfBuilder {
   ))
 
   def build(spark: SparkSession, path: String): DataFrame = {
+
+    // Set default release timestamp to dataset snapshot time
+    val now: Timestamp = new Timestamp(2017, 11, 2, 23, 59, 59, 0)
 
     // Define format
     spark.read
@@ -42,7 +47,7 @@ object ReleaseDfBuilder {
 
       // Add column for date of next release
       .withColumn("NextReleaseDate",
-        lag("Date", -1, null)
+        lag("Date", -1, now)
           .over(Window.partitionBy("Project").orderBy("Date")))
 
   }
