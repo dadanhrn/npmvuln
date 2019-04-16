@@ -1,3 +1,4 @@
+import npmvuln.GraphPersistence
 import org.apache.spark.SparkContext
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.{DataFrame, SparkSession}
@@ -76,13 +77,18 @@ object Main extends App {
   * Execute Pregel *
   *****************/
   // Execute Pregel program
-  val result: Graph[VertexProperties, EdgeProperties] = VulnerabilityScan.run(graph)
+//  val result: Graph[VertexProperties, EdgeProperties] = VulnerabilityScan.run(graph, 30).cache()
 
-  val affectedpkg: Long = result.vertices
-    .map(_._2)
-    .filter(_.isInstanceOf[PackageVertex])
-    .map(_.asInstanceOf[PackageVertex])
-    .filter(_.vulnerabilities.length > 0)
-    .count
-  println("Affected package: " + affectedpkg.toString)
+  // Save graph
+  val vertexSavePath: String = "file:///home/cerdas/Documents/dadanhrn/spark/vertex"
+  val edgeSavePath: String = "file:///home/cerdas/Documents/dadanhrn/spark/edge"
+  GraphPersistence.save(graph, vertexSavePath, edgeSavePath)
+
+//  val affectedpkg: Long = result.vertices
+//    .map(_._2)
+//    .filter(_.isInstanceOf[PackageVertex])
+//    .map(_.asInstanceOf[PackageVertex])
+//    .filter(_.vulnerabilities.length > 0)
+//    .count
+//  println("Affected package: " + affectedpkg.toString)
 }
