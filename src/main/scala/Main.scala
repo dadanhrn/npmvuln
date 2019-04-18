@@ -75,18 +75,18 @@ object Main extends App {
   * Execute Pregel *
   *****************/
   // Execute Pregel program
-//  val result: Graph[VertexProperties, EdgeProperties] = VulnerabilityScan.run(graph, 30).cache()
+  val result: Graph[VertexProperties, EdgeProperties] = VulnerabilityScan.run(graph, 30).cache()
 
   // Save graph
   val vertexSavePath: String = "file:///home/cerdas/Documents/dadanhrn/spark/vertex"
   val edgeSavePath: String = "file:///home/cerdas/Documents/dadanhrn/spark/edge"
-  GraphPersistence.save(graph, vertexSavePath, edgeSavePath)
+  GraphPersistence.save(result, vertexSavePath, edgeSavePath)
 
-//  val affectedpkg: Long = result.vertices
-//    .map(_._2)
-//    .filter(_.isInstanceOf[PackageVertex])
-//    .map(_.asInstanceOf[PackageVertex])
-//    .filter(_.vulnerabilities.length > 0)
-//    .count
-//  println("Affected package: " + affectedpkg.toString)
+  val affectedpkg: Long = result.vertices
+    .map(_._2)
+    .filter(_.isInstanceOf[PackageVertex])
+    .map(_.asInstanceOf[PackageVertex])
+    .filter(_.vulnerabilities.length > 0)
+    .count
+  println("Affected package: " + affectedpkg.toString)
 }
