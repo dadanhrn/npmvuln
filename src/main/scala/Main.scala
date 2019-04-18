@@ -12,10 +12,9 @@ object Main extends App {
   * Build execution context *
   **************************/
   val conf: SparkConf = new SparkConf()
-    .setMaster("spark://spark-master:7077")
     .setAppName("NPMVuln")
   val sc: SparkContext = new SparkContext(conf)
-  val spark: SparkSession = SparkSession.builder.master("spark://spark-master:7077").getOrCreate
+  val spark: SparkSession = SparkSession.builder.getOrCreate
 
   /*******************
   * Build dataframes *
