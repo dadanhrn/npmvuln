@@ -1,12 +1,23 @@
+import java.io.FileInputStream
+
 import org.apache.spark.SparkContext
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.apache.spark.graphx.{Edge, EdgeDirection, EdgeRDD, Graph, VertexId, VertexRDD}
 import org.apache.spark.rdd.RDD
+import java.util.Properties
+
 import npmvuln.job._
 import npmvuln.props._
 
 object Main extends App {
+  /******************
+  * Read properties *
+  ******************/
+  val propertiesFile: FileInputStream = new FileInputStream("./npmvuln.properties")
+  val properties: Properties = new Properties()
+  properties.load(propertiesFile)
+  propertiesFile.close()
 
   /**************************
   * Build execution context *
@@ -20,18 +31,18 @@ object Main extends App {
   * Build dataframes *
   *******************/
   // Build advisory dataframe
-  val advisoryPath: String = "file:///home/cerdas/Documents/dadanhrn/replicationpackage/data/vulnerabilities.csv"
+  val advisoryPath: String = properties.getProperty("data.advisory")
   val advisoryDf: DataFrame = AdvisoryDfBuilder.build(spark, advisoryPath).cache()
 
   // Build release dataframe from libio-versions.csv
-  val libioVersionsPath: String = "file:///home/cerdas/Documents/dadanhrn/replicationpackage/data/libio-versions1.csv"
+  val libioVersionsPath: String = properties.getProperty("data.versions")
   val releasesDf: DataFrame = ReleaseDfBuilder.build(spark, libioVersionsPath).cache()
 
   // Build project dataframe from release dataframe
   val projectsDf: DataFrame = ProjectDfBuilder.build(releasesDf).cache()
 
   // Build dependencies dataframe from libio-dependencies.csv
-  val libioDependenciesPath: String = "file:///home/cerdas/Documents/dadanhrn/replicationpackage/data/libio-dependencies1.csv"
+  val libioDependenciesPath: String = properties.getProperty("data.dependencies")
   val dependenciesDf: DataFrame = DependenciesDfBuilder.build(spark, libioDependenciesPath).cache()
 
   /***************************
@@ -78,9 +89,11 @@ object Main extends App {
   val result: Graph[VertexProperties, EdgeProperties] = VulnerabilityScan.run(graph, 30).cache()
 
   // Save graph
-  val vertexSavePath: String = "file:///home/cerdas/Documents/dadanhrn/spark/vertex"
-  val edgeSavePath: String = "file:///home/cerdas/Documents/dadanhrn/spark/edge"
-  GraphPersistence.save(result, vertexSavePath, edgeSavePath)
+  if (properties.getProperty("save.graph") == "true"){
+    val vertexSavePath: String = properties.getProperty("save.vertex.path")
+    val edgeSavePath: String = properties.getProperty("save.edge.path")
+    GraphPersistence.save(result, vertexSavePath, edgeSavePath)
+  }
 
   val affectedpkg: Long = result.vertices
     .map(_._2)

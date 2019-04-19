@@ -4,6 +4,8 @@ version := "1.0"
 
 scalaVersion := "2.11.12"
 
+resolvers += "Spark Packages Repo" at "http://dl.bintray.com/spark-packages/maven"
+
 libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-core" % "2.4.0" % Provided,
   "org.apache.spark" %% "spark-streaming" % "2.4.0" % Provided,
@@ -11,7 +13,8 @@ libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-sql" % "2.4.0" % Provided,
 
   "com.github.gundy" % "semver4j" % "0.16.4",
-  "org.threeten" % "threeten-extra" % "1.5.0"
+  "org.threeten" % "threeten-extra" % "1.5.0",
+  "neo4j-contrib" % "neo4j-spark-connector" % "2.1.0-M4"
 )
 
 assemblyMergeStrategy in assembly := {
