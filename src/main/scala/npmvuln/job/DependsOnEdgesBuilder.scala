@@ -21,7 +21,7 @@ object DependsOnEdgesBuilder {
         val constraint: String = row.getAs[String]("Constraint")
         val dependencyProp: DependsOnEdge = new DependsOnEdge(constraint)
 
-        new Edge[DependsOnEdge](dependentId, dependencyId, dependencyProp)
+        new Edge[DependsOnEdge](dependencyId, dependentId, dependencyProp)
       }) (Encoders.bean(classOf[Edge[DependsOnEdge]]))
 
       // Get RDD
