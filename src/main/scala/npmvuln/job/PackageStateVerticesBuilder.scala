@@ -24,7 +24,7 @@ object PackageStateVerticesBuilder {
         val packageStateVertex: PackageStateVertex = new PackageStateVertex(packageName, version, releaseDate)
 
         (releaseId, packageStateVertex)
-      }) (Encoders.bean(classOf[(VertexId, PackageStateVertex)]))
+      }) (Encoders.kryo(classOf[(VertexId, PackageStateVertex)]))
 
 
       // Get RDD

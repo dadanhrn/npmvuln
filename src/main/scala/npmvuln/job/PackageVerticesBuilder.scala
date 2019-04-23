@@ -19,7 +19,7 @@ object PackageVerticesBuilder {
         val packageVertex: PackageVertex = new PackageVertex(projectName)
 
         (projectId, packageVertex)
-      }) (Encoders.bean(classOf[(VertexId, PackageVertex)]))
+      }) (Encoders.kryo(classOf[(VertexId, PackageVertex)]))
 
       // Get RDD
       .rdd

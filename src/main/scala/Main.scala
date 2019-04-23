@@ -24,6 +24,15 @@ object Main extends App {
   **************************/
   val conf: SparkConf = new SparkConf()
     .setAppName("NPMVuln")
+    .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+    .registerKryoClasses(Array(
+      classOf[(VertexId, PackageStateVertex)],
+      classOf[(VertexId, PackageVertex)],
+      classOf[(VertexId, VulnProperties)],
+      classOf[Edge[SnapshotEdge]],
+      classOf[Edge[DependsOnEdge]]
+    ))
+
   val sc: SparkContext = new SparkContext(conf)
   val spark: SparkSession = SparkSession.builder.getOrCreate
 

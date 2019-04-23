@@ -28,7 +28,7 @@ object SnapshotEdgesBuilder {
         val snapshotProp: SnapshotEdge = new SnapshotEdge(packageName, version, period)
 
         new Edge[SnapshotEdge](packageStateId, packageId, snapshotProp)
-      }) (Encoders.bean(classOf[Edge[SnapshotEdge]]))
+      }) (Encoders.kryo(classOf[Edge[SnapshotEdge]]))
 
       // Get RDD
       .rdd

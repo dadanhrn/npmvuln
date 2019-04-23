@@ -22,7 +22,7 @@ object DependsOnEdgesBuilder {
         val dependencyProp: DependsOnEdge = new DependsOnEdge(constraint)
 
         new Edge[DependsOnEdge](dependencyId, dependentId, dependencyProp)
-      }) (Encoders.bean(classOf[Edge[DependsOnEdge]]))
+      }) (Encoders.kryo(classOf[Edge[DependsOnEdge]]))
 
       // Get RDD
       .rdd
