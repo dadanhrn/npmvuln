@@ -34,7 +34,7 @@ object Main extends App {
     ))
 
   val sc: SparkContext = new SparkContext(conf)
-  val spark: SparkSession = SparkSession.builder.getOrCreate
+  val spark: SparkSession = SparkSession.builder.config(conf).getOrCreate
 
   /*******************
   * Build dataframes *
