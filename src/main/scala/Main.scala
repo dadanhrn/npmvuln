@@ -95,7 +95,8 @@ object Main extends App {
   * Execute Pregel *
   *****************/
   // Execute Pregel program
-  val result: Graph[VertexProperties, EdgeProperties] = VulnerabilityScan.run(graph, 30).cache()
+  val maxIterations: Int = properties.getProperty("pregel.maxIterations").toInt
+  val result: Graph[VertexProperties, EdgeProperties] = VulnerabilityScan.run(graph, maxIterations).cache()
 
   // Save graph
   if (properties.getProperty("save.graph") == "true"){
