@@ -40,7 +40,7 @@ object PackageStateVerticesBuilder {
           case Some(lsVuln) => {
             // Add PackageStateVertex it's on to propagation path
             pair._1.vulnRecords = lsVuln.map(vulnProp => {
-              vulnProp.propagationPath :+ pair._1
+              vulnProp.immediateSource = pair._1
               vulnProp
             })
           }
