@@ -98,11 +98,20 @@ object Main extends App {
   val maxIterations: Int = properties.getProperty("pregel.maxIterations").toInt
   val result: Graph[VertexProperties, EdgeProperties] = VulnerabilityScan.run(graph, maxIterations).cache()
 
+  // Build propagated vulnerabilities dataframe
+  val resultDf: DataFrame = ResultDfBuilder.run(spark, result)
+
   // Save graph
   if (properties.getProperty("save.graph") == "true"){
     val vertexSavePath: String = properties.getProperty("save.vertex.path")
     val edgeSavePath: String = properties.getProperty("save.edge.path")
-    GraphPersistence.save(result, vertexSavePath, edgeSavePath)
+    Persistence.saveGraph(result, vertexSavePath, edgeSavePath)
+  }
+
+  // Save propagated vulnerabilities dataframe
+  if (properties.getProperty("save.result") == "true"){
+    val resultSavePath: String = properties.getProperty("save.result.path")
+    Persistence.saveDfAsCsv(resultDf, resultSavePath)
   }
 
   val affectedpkg: Long = result.vertices
