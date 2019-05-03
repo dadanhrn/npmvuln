@@ -1,9 +1,10 @@
-package npmvuln.job
+package npmvuln.jobs
 
 import org.apache.spark.graphx.Graph
 import org.apache.spark.sql.{DataFrame, SparkSession, Row, Dataset}
 import org.apache.spark.sql.types._
 import java.sql.Timestamp
+import java.time.{Duration, Instant}
 import npmvuln.props._
 
 object ResultDfBuilder {
@@ -17,6 +18,7 @@ object ResultDfBuilder {
     StructField("Release", StringType, false),
     StructField("Since", TimestampType, false),
     StructField("To", TimestampType, false),
+    StructField("Duration(Days)", LongType, false),
     StructField("Level", IntegerType, true)
   ))
 
@@ -37,8 +39,12 @@ object ResultDfBuilder {
       // Build dataframe rows
       .flatMap(rel => {
         rel.vulnRecords.map(vuln => {
+          val affected_since: Instant = vuln.period.getStart
+          val affected_to: Instant = vuln.period.getEnd
+          val affected_duration: Long = Duration.between(affected_since, affected_to).toDays
+
           Row(vuln.id, vuln.name, vuln.severity, rel.packageName, rel.version,
-            Timestamp.from(vuln.period.getStart), Timestamp.from(vuln.period.getEnd))
+            Timestamp.from(affected_since), Timestamp.from(affected_to), affected_duration)
         })
       })
 

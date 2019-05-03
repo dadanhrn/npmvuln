@@ -1,4 +1,4 @@
-package npmvuln.job
+package npmvuln.jobs
 
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.apache.spark.sql.functions.{col, trim, lag, monotonically_increasing_id, udf}

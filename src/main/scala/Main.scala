@@ -7,7 +7,7 @@ import org.apache.spark.graphx.{Edge, EdgeDirection, EdgeRDD, Graph, VertexId, V
 import org.apache.spark.rdd.RDD
 import java.util.Properties
 
-import npmvuln.job._
+import npmvuln.jobs._
 import npmvuln.props._
 
 object Main extends App {

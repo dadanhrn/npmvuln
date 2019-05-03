@@ -1,4 +1,4 @@
-package npmvuln.job
+package npmvuln.jobs
 
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions.monotonically_increasing_id

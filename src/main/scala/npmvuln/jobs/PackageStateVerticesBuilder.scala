@@ -1,4 +1,4 @@
-package npmvuln.job
+package npmvuln.jobs
 
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{DataFrame, Encoders}
