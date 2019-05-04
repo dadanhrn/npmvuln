@@ -30,13 +30,13 @@ object KaplanMeierEstimator {
       // Get cumulative frequency of all event
       .withColumn("CumulativeEvent",
         sum("Count")
-          .over(Window.orderBy(col("_2").asc)
+          .over(Window.orderBy(col("Duration").asc)
             .rowsBetween(Long.MinValue, 0)))
 
       // Get number of survivor just prior to current time
       .withColumn("Survivor",
         (lag("CumulativeEvent", 1, 0)
-          .over(Window.orderBy("_2")) - individuals) * -1)
+          .over(Window.orderBy("Duration")) - individuals) * -1)
 
       // Calculate factor
       .withColumn("Factor",
@@ -45,7 +45,7 @@ object KaplanMeierEstimator {
       // Calculate values in survival function
       .withColumn("SurvivalFunction",
         CumulativeProduct(col("Factor"))
-          .over(Window.orderBy(col("_2"))
+          .over(Window.orderBy(col("Duration"))
             .rowsBetween(Long.MinValue, 0)))
 
   }
