@@ -6,6 +6,7 @@ import org.apache.spark.sql.types._
 import java.sql.Timestamp
 import java.time.{Duration, Instant}
 import npmvuln.props._
+import npmvuln.helpers.constants.CENSOR_DATE
 
 object ResultDfBuilder {
 
@@ -18,7 +19,8 @@ object ResultDfBuilder {
     StructField("Release", StringType, false),
     StructField("Since", TimestampType, false),
     StructField("To", TimestampType, false),
-    StructField("Duration(Days)", LongType, false),
+    StructField("Duration", LongType, false),
+    StructField("Uncensored", BooleanType, false),
     StructField("Level", IntegerType, true)
   ))
 
@@ -42,9 +44,10 @@ object ResultDfBuilder {
           val affected_since: Instant = vuln.period.getStart
           val affected_to: Instant = vuln.period.getEnd
           val affected_duration: Long = Duration.between(affected_since, affected_to).toDays
+          val isUncensored: Boolean = affected_to != CENSOR_DATE
 
           Row(vuln.id, vuln.name, vuln.severity, rel.packageName, rel.version,
-            Timestamp.from(affected_since), Timestamp.from(affected_to), affected_duration)
+            Timestamp.from(affected_since), Timestamp.from(affected_to), affected_duration, isUncensored)
         })
       })
 
