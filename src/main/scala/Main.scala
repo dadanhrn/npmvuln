@@ -9,6 +9,7 @@ import java.util.Properties
 
 import npmvuln.jobs._
 import npmvuln.props._
+import org.apache.spark.storage.StorageLevel
 
 object Main extends App {
   /******************
@@ -41,18 +42,18 @@ object Main extends App {
   *******************/
   // Build advisory dataframe
   val advisoryPath: String = properties.getProperty("data.advisory")
-  val advisoryDf: DataFrame = AdvisoryDfBuilder.build(spark, advisoryPath).cache()
+  val advisoryDf: DataFrame = AdvisoryDfBuilder.build(spark, advisoryPath)
 
   // Build release dataframe from libio-versions.csv
   val libioVersionsPath: String = properties.getProperty("data.versions")
-  val releasesDf: DataFrame = ReleaseDfBuilder.build(spark, libioVersionsPath).cache()
+  val releasesDf: DataFrame = ReleaseDfBuilder.build(spark, libioVersionsPath)
 
   // Build project dataframe from release dataframe
-  val projectsDf: DataFrame = ProjectDfBuilder.build(releasesDf).cache()
+  val projectsDf: DataFrame = ProjectDfBuilder.build(releasesDf)
 
   // Build dependencies dataframe from libio-dependencies.csv
   val libioDependenciesPath: String = properties.getProperty("data.dependencies")
-  val dependenciesDf: DataFrame = DependenciesDfBuilder.build(spark, libioDependenciesPath).cache()
+  val dependenciesDf: DataFrame = DependenciesDfBuilder.build(spark, libioDependenciesPath)
 
   /***************************
   * Build vertices and edges *
@@ -60,22 +61,27 @@ object Main extends App {
   // Get vulnerability properties
   val vulnProperties: RDD[(VertexId, Array[VulnProperties])] = VulnerabilityDfBuilder
     .build(releasesDf, advisoryDf)
+    .persist(StorageLevel.MEMORY_AND_DISK_SER)
 
   // Build Package vertices RDD
   val packageVertices: RDD[(VertexId, PackageVertex)] = PackageVerticesBuilder
     .build(projectsDf)
+    .persist(StorageLevel.MEMORY_AND_DISK_SER)
 
   // Build PackageState vertices RDD
   val packageStateVertices: RDD[(VertexId, PackageStateVertex)] = PackageStateVerticesBuilder
     .build(releasesDf, vulnProperties)
+    .persist(StorageLevel.MEMORY_AND_DISK_SER)
 
   // Build SNAPSHOT edges RDD
   val snapshotEdges: RDD[Edge[SnapshotEdge]] = SnapshotEdgesBuilder
     .build(projectsDf, releasesDf)
+    .persist(StorageLevel.MEMORY_AND_DISK_SER)
 
   // Build DEPENDS_ON edges RDD
   val dependsOnEdges: RDD[Edge[DependsOnEdge]] = DependsOnEdgesBuilder
     .build(dependenciesDf, projectsDf, releasesDf)
+    .persist(StorageLevel.MEMORY_AND_DISK_SER)
 
   /**************
   * Build graph *
@@ -89,7 +95,8 @@ object Main extends App {
     .union(Seq(snapshotEdges.asInstanceOf[RDD[Edge[EdgeProperties]]], dependsOnEdges.asInstanceOf[RDD[Edge[EdgeProperties]]]))
 
   // Build graph
-  val graph: Graph[VertexProperties, EdgeProperties] = Graph(vertexRDD, edgeRDD).cache()
+  val graph: Graph[VertexProperties, EdgeProperties] = Graph(vertexRDD, edgeRDD)
+    .persist(StorageLevel.MEMORY_AND_DISK_SER)
 
   /*****************
   * Execute Pregel *
