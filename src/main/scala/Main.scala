@@ -96,7 +96,6 @@ object Main extends App {
 
   // Build graph
   val graph: Graph[VertexProperties, EdgeProperties] = Graph(vertexRDD, edgeRDD)
-    .persist(StorageLevel.MEMORY_ONLY_SER)
 
   /*****************
   * Execute Pregel *
