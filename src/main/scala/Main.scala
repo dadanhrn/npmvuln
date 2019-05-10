@@ -58,15 +58,15 @@ object Main extends App {
   ***************************/
   // Get vulnerability properties
   val vulnProperties: RDD[(VertexId, Array[VulnProperties])] = VulnerabilityDfBuilder
-    .build(releasesDf, advisoryDf)
+    .build(releasesDf, advisoryDf).cache
 
   // Build PackageState vertices RDD
   val packageStateVertices: RDD[(VertexId, PackageStateVertex)] = PackageStateVerticesBuilder
-    .build(releasesDf, vulnProperties)
+    .build(releasesDf, vulnProperties).cache
 
   // Build DEPENDS_ON edges RDD
   val dependsOnEdges: RDD[Edge[Null]] = DependsOnEdgesBuilder
-    .build(dependenciesDf, releasesDf)
+    .build(dependenciesDf, releasesDf).cache
 
   /**************
   * Build graph *

@@ -29,7 +29,6 @@ object PackageStateVerticesBuilder {
         (releaseId, packageStateVertex)
       }) (Encoders.kryo(classOf[(VertexId, PackageStateVertex)]))
 
-
       // Get RDD
       .rdd
 
