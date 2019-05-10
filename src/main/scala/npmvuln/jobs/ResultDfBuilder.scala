@@ -24,16 +24,13 @@ object ResultDfBuilder {
     StructField("Level", IntegerType, true)
   ))
 
-  def run(spark: SparkSession, resultGraph: Graph[VertexProperties, EdgeProperties]): DataFrame = {
+  def run(spark: SparkSession, resultGraph: Graph[PackageStateVertex, Null]): DataFrame = {
 
     // Get vertices
     val resultRDD = resultGraph.vertices
 
-      // Filter to get only PackageState vertices
-      .filter(_._2.isInstanceOf[PackageStateVertex])
-
-      // Convert VertexProperties to PackageStateVertex
-      .map(_.asInstanceOf[PackageStateVertex])
+      // Get vertex properties
+      .map(_._2)
 
       // Filter out PackageState unaffected by vulnerability
       .filter(!_.vulnRecords.isEmpty)

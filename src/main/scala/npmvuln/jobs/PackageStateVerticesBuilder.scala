@@ -4,6 +4,7 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{DataFrame, Encoders}
 import org.apache.spark.graphx.VertexId
 import java.sql.Timestamp
+import org.threeten.extra.Interval
 
 import npmvuln.props._
 
@@ -21,7 +22,9 @@ object PackageStateVerticesBuilder {
         val packageName: String = row.getAs[String]("Project")
         val version: String = row.getAs[String]("Release")
         val releaseDate: Timestamp = row.getAs[Timestamp]("Date")
-        val packageStateVertex: PackageStateVertex = new PackageStateVertex(packageName, version, releaseDate)
+        val obsoleteDate: Timestamp = row.getAs[Timestamp]("NextReleaseDate")
+        val latestPeriod: Interval = Interval.of(releaseDate.toInstant, obsoleteDate.toInstant)
+        val packageStateVertex: PackageStateVertex = new PackageStateVertex(packageName, version, latestPeriod)
 
         (releaseId, packageStateVertex)
       }) (Encoders.kryo(classOf[(VertexId, PackageStateVertex)]))
@@ -39,10 +42,7 @@ object PackageStateVerticesBuilder {
         pair._2 match {
           case Some(lsVuln) => {
             // Add PackageStateVertex it's on to propagation path
-            pair._1.vulnRecords = lsVuln.map(vulnProp => {
-              vulnProp.immediateSource = pair._1
-              vulnProp
-            })
+            pair._1.vulnRecords = lsVuln
           }
 
           case None => pair._1.vulnRecords = Array()

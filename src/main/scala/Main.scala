@@ -28,9 +28,7 @@ object Main extends App {
     .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
     .registerKryoClasses(Array(
       classOf[(VertexId, PackageStateVertex)],
-      classOf[(VertexId, PackageVertex)],
       classOf[(VertexId, VulnProperties)],
-      classOf[Edge[SnapshotEdge]],
       classOf[Edge[DependsOnEdge]]
     ))
 
@@ -61,48 +59,27 @@ object Main extends App {
   // Get vulnerability properties
   val vulnProperties: RDD[(VertexId, Array[VulnProperties])] = VulnerabilityDfBuilder
     .build(releasesDf, advisoryDf)
-    .persist(StorageLevel.MEMORY_AND_DISK_SER)
-
-  // Build Package vertices RDD
-  val packageVertices: RDD[(VertexId, PackageVertex)] = PackageVerticesBuilder
-    .build(projectsDf)
-    .persist(StorageLevel.MEMORY_AND_DISK_SER)
 
   // Build PackageState vertices RDD
   val packageStateVertices: RDD[(VertexId, PackageStateVertex)] = PackageStateVerticesBuilder
     .build(releasesDf, vulnProperties)
-    .persist(StorageLevel.MEMORY_AND_DISK_SER)
-
-  // Build SNAPSHOT edges RDD
-  val snapshotEdges: RDD[Edge[SnapshotEdge]] = SnapshotEdgesBuilder
-    .build(projectsDf, releasesDf)
-    .persist(StorageLevel.MEMORY_AND_DISK_SER)
 
   // Build DEPENDS_ON edges RDD
-  val dependsOnEdges: RDD[Edge[DependsOnEdge]] = DependsOnEdgesBuilder
-    .build(dependenciesDf, projectsDf, releasesDf)
-    .persist(StorageLevel.MEMORY_AND_DISK_SER)
+  val dependsOnEdges: RDD[Edge[Null]] = DependsOnEdgesBuilder
+    .build(dependenciesDf, releasesDf)
 
   /**************
   * Build graph *
   **************/
-  // Build vertex RDD by merging Package and PackageState RDDs
-  val vertexRDD: RDD[(VertexId, VertexProperties)] = sc
-    .union(Seq(packageVertices.asInstanceOf[RDD[(VertexId, VertexProperties)]], packageStateVertices.asInstanceOf[RDD[(VertexId, VertexProperties)]]))
-
-  // Build edge RDD by merging SNAPSHOT and DEPENDS_ON RDDs
-  val edgeRDD: RDD[Edge[EdgeProperties]] = sc
-    .union(Seq(snapshotEdges.asInstanceOf[RDD[Edge[EdgeProperties]]], dependsOnEdges.asInstanceOf[RDD[Edge[EdgeProperties]]]))
-
   // Build graph
-  val graph: Graph[VertexProperties, EdgeProperties] = Graph(vertexRDD, edgeRDD)
+  val graph: Graph[PackageStateVertex, Null] = Graph(packageStateVertices, dependsOnEdges)
 
   /*****************
   * Execute Pregel *
   *****************/
   // Execute Pregel program
   val maxIterations: Int = properties.getProperty("pregel.maxIterations").toInt
-  val result: Graph[VertexProperties, EdgeProperties] = VulnerabilityScan.run(graph, maxIterations)
+  val result: Graph[PackageStateVertex, Null] = VulnerabilityScan.run(graph, maxIterations)
 
   // Build propagated vulnerabilities dataframe
   val resultDf: DataFrame = ResultDfBuilder.run(spark, result)
@@ -119,12 +96,4 @@ object Main extends App {
     val resultSavePath: String = properties.getProperty("save.result.path")
     Persistence.saveDfAsCsv(resultDf, resultSavePath)
   }
-
-  val affectedpkg: Long = result.vertices
-    .map(_._2)
-    .filter(_.isInstanceOf[PackageVertex])
-    .map(_.asInstanceOf[PackageVertex])
-    .filter(_.vulnerabilities.length > 0)
-    .count
-  println("Affected package: " + affectedpkg.toString)
 }

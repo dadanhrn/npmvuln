@@ -4,4 +4,4 @@ import org.apache.spark.graphx.{Edge, VertexId}
 import scala.util.hashing.MurmurHash3.stringHash
 
 case class DependsOnEdge(var dependencyConstraint: String)
-extends EdgeProperties with Serializable
+extends Serializable

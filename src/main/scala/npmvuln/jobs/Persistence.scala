@@ -8,15 +8,15 @@ import org.apache.spark.sql.DataFrame
 
 object Persistence {
 
-  def saveGraph(graph: Graph[VertexProperties, EdgeProperties], vertexPath: String, edgePath: String): Unit = {
+  def saveGraph(graph: Graph[PackageStateVertex, Null], vertexPath: String, edgePath: String): Unit = {
     graph.vertices.saveAsObjectFile(vertexPath)
     graph.edges.saveAsObjectFile(edgePath)
   }
 
-  def loadGraph(sc: SparkContext, vertexPath: String, edgePath: String): Graph[VertexProperties, EdgeProperties] = {
-    val vertexRDD: RDD[(VertexId, VertexProperties)] = sc.objectFile[(VertexId, VertexProperties)](vertexPath)
-    val edgeRDD: RDD[Edge[EdgeProperties]] = sc.objectFile[Edge[EdgeProperties]](edgePath)
-    Graph[VertexProperties, EdgeProperties](vertexRDD, edgeRDD)
+  def loadGraph(sc: SparkContext, vertexPath: String, edgePath: String): Graph[PackageStateVertex, Null] = {
+    val vertexRDD: RDD[(VertexId, PackageStateVertex)] = sc.objectFile[(VertexId, PackageStateVertex)](vertexPath)
+    val edgeRDD: RDD[Edge[Null]] = sc.objectFile[Edge[Null]](edgePath)
+    Graph[PackageStateVertex, Null](vertexRDD, edgeRDD)
   }
 
   def saveDfAsCsv(df: DataFrame, path: String): Unit = {
