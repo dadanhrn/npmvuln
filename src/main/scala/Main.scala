@@ -61,27 +61,27 @@ object Main extends App {
   // Get vulnerability properties
   val vulnProperties: RDD[(VertexId, Array[VulnProperties])] = VulnerabilityDfBuilder
     .build(releasesDf, advisoryDf)
-    .persist(StorageLevel.MEMORY_ONLY_SER)
+    .persist(StorageLevel.MEMORY_AND_DISK_SER)
 
   // Build Package vertices RDD
   val packageVertices: RDD[(VertexId, PackageVertex)] = PackageVerticesBuilder
     .build(projectsDf)
-    .persist(StorageLevel.MEMORY_ONLY_SER)
+    .persist(StorageLevel.MEMORY_AND_DISK_SER)
 
   // Build PackageState vertices RDD
   val packageStateVertices: RDD[(VertexId, PackageStateVertex)] = PackageStateVerticesBuilder
     .build(releasesDf, vulnProperties)
-    .persist(StorageLevel.MEMORY_ONLY_SER)
+    .persist(StorageLevel.MEMORY_AND_DISK_SER)
 
   // Build SNAPSHOT edges RDD
   val snapshotEdges: RDD[Edge[SnapshotEdge]] = SnapshotEdgesBuilder
     .build(projectsDf, releasesDf)
-    .persist(StorageLevel.MEMORY_ONLY_SER)
+    .persist(StorageLevel.MEMORY_AND_DISK_SER)
 
   // Build DEPENDS_ON edges RDD
   val dependsOnEdges: RDD[Edge[DependsOnEdge]] = DependsOnEdgesBuilder
     .build(dependenciesDf, projectsDf, releasesDf)
-    .persist(StorageLevel.MEMORY_ONLY_SER)
+    .persist(StorageLevel.MEMORY_AND_DISK_SER)
 
   /**************
   * Build graph *
@@ -103,7 +103,6 @@ object Main extends App {
   // Execute Pregel program
   val maxIterations: Int = properties.getProperty("pregel.maxIterations").toInt
   val result: Graph[VertexProperties, EdgeProperties] = VulnerabilityScan.run(graph, maxIterations)
-    .persist(StorageLevel.MEMORY_ONLY_SER)
 
   // Build propagated vulnerabilities dataframe
   val resultDf: DataFrame = ResultDfBuilder.run(spark, result)
