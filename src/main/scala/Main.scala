@@ -73,6 +73,7 @@ object Main extends App {
   **************/
   // Build graph
   val graph: Graph[PackageStateVertex, Null] = Graph(packageStateVertices, dependsOnEdges)
+    .cache
 
   /*****************
   * Execute Pregel *
@@ -80,6 +81,7 @@ object Main extends App {
   // Execute Pregel program
   val maxIterations: Int = properties.getProperty("pregel.maxIterations").toInt
   val result: Graph[PackageStateVertex, Null] = VulnerabilityScan.run(graph, maxIterations)
+    .cache
 
   // Build propagated vulnerabilities dataframe
   val resultDf: DataFrame = ResultDfBuilder.run(spark, result)
