@@ -29,7 +29,7 @@ object Main extends App {
     .registerKryoClasses(Array(
       classOf[(VertexId, PackageStateVertex)],
       classOf[(VertexId, VulnProperties)],
-      classOf[Edge[DependsOnEdge]]
+      classOf[Edge[Null]]
     ))
 
   val sc: SparkContext = new SparkContext(conf)
