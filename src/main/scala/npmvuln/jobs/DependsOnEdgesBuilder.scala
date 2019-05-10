@@ -12,7 +12,8 @@ object DependsOnEdgesBuilder {
 
     // Source dataframe
     releasesDf
-      .crossJoin(
+      .join(dependenciesDf, Seq("Project", "Release"))
+      .join(
         releasesDf
           .withColumnRenamed("Project", "Dep_Project")
           .withColumnRenamed("Release", "Dep_Release")
@@ -20,7 +21,6 @@ object DependsOnEdgesBuilder {
           .withColumnRenamed("NextReleaseDate", "Dep_NextReleaseDate")
           .withColumnRenamed("ReleaseId", "Dep_ReleaseId")
       )
-      .join(dependenciesDf, Seq("Project", "Release"))
       .where(checkConstraint(col("Dep_Release"), col("Constraint")))
 
       // Select column to be used
