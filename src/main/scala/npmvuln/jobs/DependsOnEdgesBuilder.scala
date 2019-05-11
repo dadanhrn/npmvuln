@@ -10,17 +10,18 @@ object DependsOnEdgesBuilder {
 
   def build(dependenciesDf: DataFrame, releasesDf: DataFrame): RDD[Edge[Null]] = {
 
+    val releasesDfRight: DataFrame = releasesDf
+      .withColumnRenamed("Project", "Dep_Project")
+      .withColumnRenamed("Release", "Dep_Release")
+      .withColumnRenamed("Date", "Dep_Date")
+      .withColumnRenamed("NextReleaseDate", "Dep_NextReleaseDate")
+      .withColumnRenamed("ReleaseId", "Dep_ReleaseId")
+
     // Source dataframe
     releasesDf
       .join(dependenciesDf, Seq("Project", "Release"))
-      .join(
-        releasesDf
-          .withColumnRenamed("Project", "Dep_Project")
-          .withColumnRenamed("Release", "Dep_Release")
-          .withColumnRenamed("Date", "Dep_Date")
-          .withColumnRenamed("NextReleaseDate", "Dep_NextReleaseDate")
-          .withColumnRenamed("ReleaseId", "Dep_ReleaseId")
-      )
+      .join(releasesDfRight, col("Dependency") === releasesDfRight("Dep_Project"))
+      .repartition(col("Dependency"))
       .where(checkConstraint(col("Dep_Release"), col("Constraint")))
 
       // Select column to be used
