@@ -33,7 +33,7 @@ object ResultDfBuilder {
       .filter(_._2.isInstanceOf[PackageStateVertex])
 
       // Convert VertexProperties to PackageStateVertex
-      .map(_.asInstanceOf[PackageStateVertex])
+      .map(_._2.asInstanceOf[PackageStateVertex])
 
       // Filter out PackageState unaffected by vulnerability
       .filter(!_.vulnRecords.isEmpty)

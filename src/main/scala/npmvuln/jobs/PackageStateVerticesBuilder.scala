@@ -4,6 +4,7 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{DataFrame, Encoders}
 import org.apache.spark.graphx.VertexId
 import java.sql.Timestamp
+import it.unimi.dsi.fastutil.Arrays
 
 import npmvuln.props._
 

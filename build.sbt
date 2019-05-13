@@ -12,11 +12,10 @@ libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-graphx" % "2.4.0" % Provided,
   "org.apache.spark" %% "spark-sql" % "2.4.0" % Provided,
 
-  "org.apache.giraph" % "giraph-core" % "1.2.0-hadoop2",
-
   "com.github.gundy" % "semver4j" % "0.16.4",
   "org.threeten" % "threeten-extra" % "1.5.0",
-  "neo4j-contrib" % "neo4j-spark-connector" % "2.1.0-M4"
+  "neo4j-contrib" % "neo4j-spark-connector" % "2.1.0-M4",
+  "it.unimi.dsi" % "fastutil" % "8.2.2"
 )
 
 assemblyMergeStrategy in assembly := {
