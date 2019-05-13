@@ -20,8 +20,8 @@ object ResultDfBuilder {
     StructField("Since", TimestampType, false),
     StructField("To", TimestampType, false),
     StructField("Duration", LongType, false),
-    StructField("Uncensored", BooleanType, false),
-    StructField("Level", IntegerType, true)
+    StructField("Uncensored", BooleanType, false)
+//    StructField("Level", IntegerType, true)
   ))
 
   def run(spark: SparkSession, resultGraph: Graph[VertexProperties, EdgeProperties]): DataFrame = {
