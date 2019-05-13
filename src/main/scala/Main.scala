@@ -61,27 +61,27 @@ object Main extends App {
   // Get vulnerability properties
   val vulnProperties: RDD[(VertexId, Array[VulnProperties])] = VulnerabilityDfBuilder
     .build(releasesDf, advisoryDf)
-    .persist(StorageLevel.MEMORY_AND_DISK_SER)
+//    .persist(StorageLevel.MEMORY_AND_DISK_SER)
 
   // Build Package vertices RDD
   val packageVertices: RDD[(VertexId, PackageVertex)] = PackageVerticesBuilder
     .build(projectsDf)
-    .persist(StorageLevel.MEMORY_AND_DISK_SER)
+//    .persist(StorageLevel.MEMORY_AND_DISK_SER)
 
   // Build PackageState vertices RDD
   val packageStateVertices: RDD[(VertexId, PackageStateVertex)] = PackageStateVerticesBuilder
     .build(releasesDf, vulnProperties)
-    .persist(StorageLevel.MEMORY_AND_DISK_SER)
+//    .persist(StorageLevel.MEMORY_AND_DISK_SER)
 
   // Build SNAPSHOT edges RDD
   val snapshotEdges: RDD[Edge[SnapshotEdge]] = SnapshotEdgesBuilder
     .build(projectsDf, releasesDf)
-    .persist(StorageLevel.MEMORY_AND_DISK_SER)
+//    .persist(StorageLevel.MEMORY_AND_DISK_SER)
 
   // Build DEPENDS_ON edges RDD
   val dependsOnEdges: RDD[Edge[DependsOnEdge]] = DependsOnEdgesBuilder
     .build(dependenciesDf, projectsDf, releasesDf)
-    .persist(StorageLevel.MEMORY_AND_DISK_SER)
+//    .persist(StorageLevel.MEMORY_AND_DISK_SER)
 
   /**************
   * Build graph *
