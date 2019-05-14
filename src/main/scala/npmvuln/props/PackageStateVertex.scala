@@ -1,7 +1,7 @@
 package npmvuln.props
 
-import java.sql.Timestamp
+import org.threeten.extra.Interval
 
 case class PackageStateVertex(var packageName: String, var version: String,
-                              var releaseDate: Timestamp, var vulnRecords: Array[VulnProperties] = Array.empty)
+                              var latestPeriod: Interval, var vulnRecords: Array[VulnProperties] = Array.empty)
 extends VertexProperties with Serializable

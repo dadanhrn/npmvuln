@@ -4,7 +4,8 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{DataFrame, Encoders}
 import org.apache.spark.graphx.VertexId
 import java.sql.Timestamp
-
+import java.time.Instant
+import org.threeten.extra.Interval
 import npmvuln.props._
 
 object PackageStateVerticesBuilder {
@@ -20,8 +21,10 @@ object PackageStateVerticesBuilder {
         val releaseId: VertexId = row.getAs[VertexId]("ReleaseId")
         val packageName: String = row.getAs[String]("Project")
         val version: String = row.getAs[String]("Release")
-        val releaseDate: Timestamp = row.getAs[Timestamp]("Date")
-        val packageStateVertex: PackageStateVertex = new PackageStateVertex(packageName, version, releaseDate)
+        val from: Instant = row.getAs[Timestamp]("Date").toInstant
+        val to: Instant = row.getAs[Timestamp]("NextReleaseDate").toInstant
+        val latestPeriod: Interval = Interval.of(from, to)
+        val packageStateVertex: PackageStateVertex = new PackageStateVertex(packageName, version, latestPeriod)
 
         (releaseId, packageStateVertex)
       }) (Encoders.kryo(classOf[(VertexId, PackageStateVertex)]))
