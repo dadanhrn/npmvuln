@@ -20,8 +20,8 @@ object ResultDfBuilder {
     StructField("Since", TimestampType, false),
     StructField("To", TimestampType, false),
     StructField("Duration", LongType, false),
-    StructField("Uncensored", BooleanType, false)
-//    StructField("Level", IntegerType, true)
+    StructField("Uncensored", BooleanType, false),
+    StructField("Level", IntegerType, false)
   ))
 
   def run(spark: SparkSession, resultGraph: Graph[VertexProperties, EdgeProperties]): DataFrame = {
@@ -47,7 +47,7 @@ object ResultDfBuilder {
           val isUncensored: Boolean = affected_to != CENSOR_DATE
 
           Row(vuln.id, vuln.name, vuln.severity, rel.packageName, rel.version,
-            Timestamp.from(affected_since), Timestamp.from(affected_to), affected_duration, isUncensored)
+            Timestamp.from(affected_since), Timestamp.from(affected_to), affected_duration, isUncensored, vuln.level)
         })
       })
 
