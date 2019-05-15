@@ -2,7 +2,7 @@ package npmvuln.jobs
 
 import org.apache.spark.sql.functions.{col, trim}
 import org.apache.spark.sql.types._
-import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.spark.sql.{DataFrame, SQLContext}
 
 object DependenciesDfBuilder {
 
@@ -14,14 +14,14 @@ object DependenciesDfBuilder {
     StructField("Constraint", StringType, false)
   ))
 
-  def build(spark: SparkSession, path: String): DataFrame = {
+  def build(spark: SQLContext, path: String): DataFrame = {
     spark.read
 
       // Define format
       .format("csv")
 
       // Define that CSV has header
-      .option("header", true)
+      .option("header", "true")
 
       // Assign schema
       .schema(this.libioDepedenciesSchema)

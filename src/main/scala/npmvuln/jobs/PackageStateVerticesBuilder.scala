@@ -1,7 +1,7 @@
 package npmvuln.jobs
 
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.{DataFrame, Encoders}
+import org.apache.spark.sql.DataFrame
 import org.apache.spark.graphx.VertexId
 import java.sql.Timestamp
 import java.time.Instant
@@ -27,11 +27,7 @@ object PackageStateVerticesBuilder {
         val packageStateVertex: PackageStateVertex = new PackageStateVertex(packageName, version, latestPeriod)
 
         (releaseId, packageStateVertex)
-      }) (Encoders.kryo(classOf[(VertexId, PackageStateVertex)]))
-
-
-      // Get RDD
-      .rdd
+      })
 
       // Join with vulnerabilities RDD
       .leftOuterJoin(vulnProperties)

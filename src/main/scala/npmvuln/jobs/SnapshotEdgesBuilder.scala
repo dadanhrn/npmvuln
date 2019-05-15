@@ -1,6 +1,6 @@
 package npmvuln.jobs
 
-import org.apache.spark.sql.{DataFrame, Encoders}
+import org.apache.spark.sql.DataFrame
 import org.apache.spark.rdd.RDD
 import org.apache.spark.graphx.{VertexId, Edge}
 import npmvuln.props.SnapshotEdge
@@ -22,9 +22,6 @@ object SnapshotEdgesBuilder {
         val snapshotProp: SnapshotEdge = new SnapshotEdge(packageName, version)
 
         new Edge[SnapshotEdge](packageStateId, packageId, snapshotProp)
-      }) (Encoders.kryo(classOf[Edge[SnapshotEdge]]))
-
-      // Get RDD
-      .rdd
+      })
   }
 }

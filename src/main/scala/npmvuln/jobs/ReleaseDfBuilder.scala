@@ -1,9 +1,9 @@
 package npmvuln.jobs
 
-import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.spark.sql.{DataFrame, SQLContext}
 import org.apache.spark.sql.functions.{col, trim, lag, monotonically_increasing_id, udf}
 import org.apache.spark.sql.types._
-import org.apache.spark.sql.expressions.{UserDefinedFunction, Window}
+import org.apache.spark.sql.expressions.{Window}
 import java.sql.Timestamp
 import npmvuln.helpers.constants.CENSOR_DATE
 
@@ -16,14 +16,14 @@ object ReleaseDfBuilder {
     StructField("Date", TimestampType, false)
   ))
 
-  def build(spark: SparkSession, path: String): DataFrame = {
+  def build(spark: SQLContext, path: String): DataFrame = {
 
     // Define format
     spark.read
       .format("csv")
 
       // Define that CSV has header
-      .option("header", true)
+      .option("header", "true")
 
       // Define format for Timestamp type
       .option("timestampFormat", "yyyy-MM-dd hh:mm:ss z")

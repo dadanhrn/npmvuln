@@ -2,14 +2,13 @@ import java.io.FileInputStream
 
 import org.apache.spark.SparkContext
 import org.apache.spark.SparkConf
-import org.apache.spark.sql.{DataFrame, SparkSession}
-import org.apache.spark.graphx.{Edge, EdgeDirection, EdgeRDD, Graph, PartitionStrategy, VertexId, VertexRDD}
+import org.apache.spark.sql.{DataFrame, SQLContext}
+import org.apache.spark.graphx.{Edge, Graph, PartitionStrategy, VertexId}
 import org.apache.spark.rdd.RDD
 import java.util.Properties
 
 import npmvuln.jobs._
 import npmvuln.props._
-import org.apache.spark.storage.StorageLevel
 
 object Main extends App {
   /******************
@@ -35,7 +34,8 @@ object Main extends App {
     ))
 
   val sc: SparkContext = new SparkContext(conf)
-  val spark: SparkSession = SparkSession.builder.config(conf).getOrCreate
+  val spark: SQLContext = SQLContext.getOrCreate(sc)
+//  val spark: SparkSession = SparkSession.builder.config(conf).getOrCreate
 
   /*******************
   * Build dataframes *

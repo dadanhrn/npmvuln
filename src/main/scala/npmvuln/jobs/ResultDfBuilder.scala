@@ -1,7 +1,7 @@
 package npmvuln.jobs
 
 import org.apache.spark.graphx.Graph
-import org.apache.spark.sql.{DataFrame, SparkSession, Row, Dataset}
+import org.apache.spark.sql.{DataFrame, SQLContext, Row, Dataset}
 import org.apache.spark.sql.types._
 import java.sql.Timestamp
 import java.time.{Duration, Instant}
@@ -24,7 +24,7 @@ object ResultDfBuilder {
     StructField("Level", IntegerType, false)
   ))
 
-  def run(spark: SparkSession, resultGraph: Graph[VertexProperties, EdgeProperties]): DataFrame = {
+  def run(spark: SQLContext, resultGraph: Graph[VertexProperties, EdgeProperties]): DataFrame = {
 
     // Get vertices
     val resultRDD = resultGraph.vertices

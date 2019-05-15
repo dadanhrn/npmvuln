@@ -1,6 +1,6 @@
 package npmvuln.jobs
 
-import org.apache.spark.sql.{DataFrame, Encoders}
+import org.apache.spark.sql.DataFrame
 import org.apache.spark.rdd.RDD
 import org.apache.spark.graphx.VertexId
 import npmvuln.props.PackageVertex
@@ -19,10 +19,7 @@ object PackageVerticesBuilder {
         val packageVertex: PackageVertex = new PackageVertex(projectName)
 
         (projectId, packageVertex)
-      }) (Encoders.kryo(classOf[(VertexId, PackageVertex)]))
-
-      // Get RDD
-      .rdd
+      })
   }
 
 }
