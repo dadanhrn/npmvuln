@@ -21,7 +21,7 @@ object AdvisoryDfBuilder {
     spark.read
 
       // Define format
-      .format("csv")
+      .format("com.databricks.spark.csv")
 
       // Define that CSV has header
       .option("header", "true")
