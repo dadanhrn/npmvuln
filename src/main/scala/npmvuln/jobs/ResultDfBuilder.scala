@@ -1,7 +1,7 @@
 package npmvuln.jobs
 
 import org.apache.spark.graphx.Graph
-import org.apache.spark.sql.{DataFrame, SQLContext, Row, Dataset}
+import org.apache.spark.sql.{DataFrame, Row}
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.hive.HiveContext
 import java.sql.Timestamp
