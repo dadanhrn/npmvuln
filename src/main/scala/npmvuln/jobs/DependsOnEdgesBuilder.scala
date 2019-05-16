@@ -12,7 +12,7 @@ object DependsOnEdgesBuilder {
     // Join dependencies dataframe, projects dataframe, and releases datafrane
     dependenciesDf
       .join(projectsDf, dependenciesDf("Dependency") === projectsDf("Project"))
-      .join(releasesDf, Seq("Project", "Release"))
+      .join(releasesDf, dependenciesDf("Project") === releasesDf("Project") && dependenciesDf("Release") === releasesDf("Release"))
 
       // Build edges and properties
       .map(row => {
