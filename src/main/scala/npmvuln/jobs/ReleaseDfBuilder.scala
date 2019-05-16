@@ -3,7 +3,8 @@ package npmvuln.jobs
 import org.apache.spark.sql.{DataFrame, SQLContext}
 import org.apache.spark.sql.functions.{col, trim, lag, monotonically_increasing_id, udf}
 import org.apache.spark.sql.types._
-import org.apache.spark.sql.expressions.{Window}
+import org.apache.spark.sql.expressions.Window
+import org.apache.spark.sql.hive.HiveContext
 import java.sql.Timestamp
 import npmvuln.helpers.constants.CENSOR_DATE
 
@@ -16,10 +17,10 @@ object ReleaseDfBuilder {
     StructField("Date", TimestampType, false)
   ))
 
-  def build(spark: SQLContext, path: String): DataFrame = {
+  def build(hive: HiveContext, path: String): DataFrame = {
 
     // Define format
-    spark.read
+    hive.read
       .format("com.databricks.spark.csv")
 
       // Define that CSV has header

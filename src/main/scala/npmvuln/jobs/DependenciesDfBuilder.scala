@@ -3,6 +3,7 @@ package npmvuln.jobs
 import org.apache.spark.sql.functions.{col, trim}
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, SQLContext}
+import org.apache.spark.sql.hive.HiveContext
 
 object DependenciesDfBuilder {
 
@@ -14,8 +15,8 @@ object DependenciesDfBuilder {
     StructField("Constraint", StringType, false)
   ))
 
-  def build(spark: SQLContext, path: String): DataFrame = {
-    spark.read
+  def build(hive: HiveContext, path: String): DataFrame = {
+    hive.read
 
       // Define format
       .format("com.databricks.spark.csv")

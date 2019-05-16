@@ -3,6 +3,7 @@ package npmvuln.jobs
 import org.apache.spark.graphx.Graph
 import org.apache.spark.sql.{DataFrame, SQLContext, Row, Dataset}
 import org.apache.spark.sql.types._
+import org.apache.spark.sql.hive.HiveContext
 import java.sql.Timestamp
 import java.time.{Duration, Instant}
 import npmvuln.props._
@@ -24,7 +25,7 @@ object ResultDfBuilder {
     StructField("Level", IntegerType, false)
   ))
 
-  def run(spark: SQLContext, resultGraph: Graph[VertexProperties, EdgeProperties]): DataFrame = {
+  def run(hive: HiveContext, resultGraph: Graph[VertexProperties, EdgeProperties]): DataFrame = {
 
     // Get vertices
     val resultRDD = resultGraph.vertices
@@ -52,6 +53,6 @@ object ResultDfBuilder {
       })
 
     // Build dataframe
-    spark.createDataFrame(resultRDD, schema)
+    hive.createDataFrame(resultRDD, schema)
   }
 }

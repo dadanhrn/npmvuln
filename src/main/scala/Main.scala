@@ -3,6 +3,7 @@ import java.io.FileInputStream
 import org.apache.spark.SparkContext
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.{DataFrame, SQLContext}
+import org.apache.spark.sql.hive.HiveContext
 import org.apache.spark.graphx.{Edge, Graph, PartitionStrategy, VertexId}
 import org.apache.spark.rdd.RDD
 import java.util.Properties
@@ -34,25 +35,25 @@ object Main extends App {
     ))
 
   val sc: SparkContext = new SparkContext(conf)
-  val spark: SQLContext = SQLContext.getOrCreate(sc)
+  val hive: HiveContext = new HiveContext(sc)
 
   /*******************
   * Build dataframes *
   *******************/
   // Build advisory dataframe
   val advisoryPath: String = properties.getProperty("data.advisory")
-  val advisoryDf: DataFrame = AdvisoryDfBuilder.build(spark, advisoryPath)
+  val advisoryDf: DataFrame = AdvisoryDfBuilder.build(hive, advisoryPath)
 
   // Build release dataframe from libio-versions.csv
   val libioVersionsPath: String = properties.getProperty("data.versions")
-  val releasesDf: DataFrame = ReleaseDfBuilder.build(spark, libioVersionsPath)
+  val releasesDf: DataFrame = ReleaseDfBuilder.build(hive, libioVersionsPath)
 
   // Build project dataframe from release dataframe
   val projectsDf: DataFrame = ProjectDfBuilder.build(releasesDf)
 
   // Build dependencies dataframe from libio-dependencies.csv
   val libioDependenciesPath: String = properties.getProperty("data.dependencies")
-  val dependenciesDf: DataFrame = DependenciesDfBuilder.build(spark, libioDependenciesPath)
+  val dependenciesDf: DataFrame = DependenciesDfBuilder.build(hive, libioDependenciesPath)
 
   /***************************
   * Build vertices and edges *
@@ -105,7 +106,7 @@ object Main extends App {
   val result: Graph[VertexProperties, EdgeProperties] = VulnerabilityScan.run(graph, maxIterations)
 
   // Build propagated vulnerabilities dataframe
-  val resultDf: DataFrame = ResultDfBuilder.run(spark, result)
+  val resultDf: DataFrame = ResultDfBuilder.run(hive, result)
 
   // Save graph
   if (properties.getProperty("save.graph") == "true"){

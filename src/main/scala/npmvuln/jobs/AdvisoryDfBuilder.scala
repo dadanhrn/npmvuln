@@ -1,6 +1,7 @@
 package npmvuln.jobs
 
 import org.apache.spark.sql.{DataFrame, SQLContext}
+import org.apache.spark.sql.hive.HiveContext
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.functions.{col, trim}
 
@@ -17,8 +18,8 @@ object AdvisoryDfBuilder {
     StructField("Versions", StringType, false)
   ))
 
-  def build(spark: SQLContext, path: String): DataFrame = {
-    spark.read
+  def build(hive: HiveContext, path: String): DataFrame = {
+    hive.read
 
       // Define format
       .format("com.databricks.spark.csv")
