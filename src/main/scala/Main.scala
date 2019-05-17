@@ -3,7 +3,7 @@ import java.io.FileInputStream
 import org.apache.spark.SparkContext
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.{DataFrame, SparkSession}
-import org.apache.spark.graphx.{Edge, EdgeDirection, EdgeRDD, Graph, PartitionStrategy, VertexId, VertexRDD}
+import org.apache.spark.graphx.{Edge, EdgeDirection, EdgeRDD, Graph, VertexId, VertexRDD}
 import org.apache.spark.rdd.RDD
 import java.util.Properties
 
@@ -96,7 +96,6 @@ object Main extends App {
 
   // Build graph
   val graph: Graph[VertexProperties, EdgeProperties] = Graph(vertexRDD, edgeRDD)
-    .partitionBy(PartitionStrategy.RandomVertexCut)
 
   /*****************
   * Execute Pregel *
