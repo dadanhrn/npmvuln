@@ -26,7 +26,7 @@ object ReleaseDfBuilder {
       .option("header", true)
 
       // Define format for Timestamp type
-      .option("timestampFormat", "yyyy-MM-dd hh:mm:ss z")
+      .option("dateFormat", "yyyy-MM-dd hh:mm:ss z")
 
       // Assign schema
       .schema(this.libioVersionsSchema)
