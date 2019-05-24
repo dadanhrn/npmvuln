@@ -27,7 +27,7 @@ object AdvisoryDfBuilder {
       .option("header", true)
 
       // Define format for Date type
-      .option("dateFomat", "yyyy-MM-dd")
+      .option("timestampFormat", "yyyy-MM-dd")
 
       // Assign schema
       .schema(this.advisorySchema)
