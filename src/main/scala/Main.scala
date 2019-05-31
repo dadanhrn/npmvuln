@@ -11,123 +11,132 @@ import npmvuln.jobs._
 import npmvuln.props._
 
 object Main extends App {
-  /******************
-  * Read properties *
-  ******************/
-  val propertiesFile: FileInputStream = new FileInputStream("./npmvuln.properties")
-  val properties: Properties = new Properties()
-  properties.load(propertiesFile)
-  propertiesFile.close()
 
-  /**************************
-  * Build execution context *
-  **************************/
-  val conf: SparkConf = new SparkConf()
-    .setAppName("NPMVuln")
-    .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-    .registerKryoClasses(Array(
-      classOf[(VertexId, PackageStateVertex)],
-      classOf[(VertexId, PackageVertex)],
-      classOf[(VertexId, VulnProperties)],
-      classOf[Edge[SnapshotEdge]],
-      classOf[Edge[DependsOnEdge]]
-    ))
+  override def main(args: Array[String]) {
 
-  val sc: SparkContext = new SparkContext(conf)
-  val spark: SparkSession = SparkSession.builder.config(conf).getOrCreate
+    /******************
+    * Read properties *
+    ******************/
+    val propertiesFile: FileInputStream = new FileInputStream("./npmvuln.properties")
+    val properties: Properties = new Properties()
+    properties.load(propertiesFile)
+    propertiesFile.close()
 
-  val checkpointDir: String = properties.getProperty("sc.checkpointDir")
-  sc.setCheckpointDir(checkpointDir)
+    /**************************
+    * Build execution context *
+    **************************/
+    val conf: SparkConf = new SparkConf()
+      .setAppName("NPMVuln")
+      .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+      .registerKryoClasses(Array(
+        classOf[(VertexId, PackageStateVertex)],
+        classOf[(VertexId, PackageVertex)],
+        classOf[(VertexId, VulnProperties)],
+        classOf[Edge[SnapshotEdge]],
+        classOf[Edge[DependsOnEdge]]
+      ))
 
-  /*******************
-  * Build dataframes *
-  *******************/
-  // Build advisory dataframe
-  val advisoryPath: String = properties.getProperty("data.advisory")
-  val advisoryDf: DataFrame = AdvisoryDfBuilder.build(spark, advisoryPath)
+    val sc: SparkContext = new SparkContext(conf)
+    val spark: SparkSession = SparkSession.builder.config(conf).getOrCreate
 
-  // Build release dataframe from libio-versions.csv
-  val libioVersionsPath: String = properties.getProperty("data.versions")
-  val releasesDf: DataFrame = ReleaseDfBuilder.build(spark, libioVersionsPath)
+    val checkpointDir: String = properties.getProperty("sc.checkpointDir")
+    sc.setCheckpointDir(checkpointDir)
 
-  // Build project dataframe from release dataframe
-  val projectsDf: DataFrame = ProjectDfBuilder.build(releasesDf)
+    /*******************
+    * Build dataframes *
+    *******************/
+    // Build advisory dataframe
+    val advisoryPath: String = properties.getProperty("data.advisory")
+    val advisoryDf: DataFrame = AdvisoryDfBuilder.build(spark, advisoryPath)
 
-  // Build dependencies dataframe from libio-dependencies.csv
-  val libioDependenciesPath: String = properties.getProperty("data.dependencies")
-  val dependenciesDf: DataFrame = DependenciesDfBuilder.build(spark, libioDependenciesPath)
+    // Build release dataframe from libio-versions.csv
+    val libioVersionsPath: String = properties.getProperty("data.versions")
+    val releasesDf: DataFrame = ReleaseDfBuilder.build(spark, libioVersionsPath)
 
-  /***************************
-  * Build vertices and edges *
-  ***************************/
-  // Get vulnerability properties
-  val vulnProperties: RDD[(VertexId, Array[VulnProperties])] = VulnerabilityDfBuilder
-    .build(releasesDf, advisoryDf)
+    // Build project dataframe from release dataframe
+    val projectsDf: DataFrame = ProjectDfBuilder.build(releasesDf)
 
-  // Build Package vertices RDD
-  val packageVertices: RDD[(VertexId, PackageVertex)] = PackageVerticesBuilder
-    .build(projectsDf)
+    // Build dependencies dataframe from libio-dependencies.csv
+    val libioDependenciesPath: String = properties.getProperty("data.dependencies")
+    val dependenciesDf: DataFrame = DependenciesDfBuilder.build(spark, libioDependenciesPath)
 
-  // Build PackageState vertices RDD
-  val packageStateVertices: RDD[(VertexId, PackageStateVertex)] = PackageStateVerticesBuilder
-    .build(releasesDf, vulnProperties)
+    /***************************
+    * Build vertices and edges *
+    ***************************/
+    // Get vulnerability properties
+    val vulnProperties: RDD[(VertexId, Array[VulnProperties])] = VulnerabilityDfBuilder
+      .build(releasesDf, advisoryDf)
 
-  // Build SNAPSHOT edges RDD
-  val snapshotEdges: RDD[Edge[SnapshotEdge]] = SnapshotEdgesBuilder
-    .build(projectsDf, releasesDf)
+    // Build Package vertices RDD
+    val packageVertices: RDD[(VertexId, PackageVertex)] = PackageVerticesBuilder
+      .build(projectsDf)
 
-  // Build DEPENDS_ON edges RDD
-  val dependsOnEdges: RDD[Edge[DependsOnEdge]] = DependsOnEdgesBuilder
-    .build(dependenciesDf, projectsDf, releasesDf)
+    // Build PackageState vertices RDD
+    val packageStateVertices: RDD[(VertexId, PackageStateVertex)] = PackageStateVerticesBuilder
+      .build(releasesDf, vulnProperties)
 
-  /**************
-  * Build graph *
-  **************/
-  // Build vertex RDD by merging Package and PackageState RDDs
-  val vertexRDD: RDD[(VertexId, VertexProperties)] = sc
-    .union(Seq(packageVertices.asInstanceOf[RDD[(VertexId, VertexProperties)]],
-               packageStateVertices.asInstanceOf[RDD[(VertexId, VertexProperties)]]))
-  vertexRDD.checkpoint()
+    // Build SNAPSHOT edges RDD
+    val snapshotEdges: RDD[Edge[SnapshotEdge]] = SnapshotEdgesBuilder
+      .build(projectsDf, releasesDf)
 
-  // Build edge RDD by merging SNAPSHOT and DEPENDS_ON RDDs
-  val edgeRDD: RDD[Edge[EdgeProperties]] = sc
-    .union(Seq(snapshotEdges.asInstanceOf[RDD[Edge[EdgeProperties]]],
-               dependsOnEdges.asInstanceOf[RDD[Edge[EdgeProperties]]]))
-  edgeRDD.checkpoint()
+    // Build DEPENDS_ON edges RDD
+    val dependsOnEdges: RDD[Edge[DependsOnEdge]] = DependsOnEdgesBuilder
+      .build(dependenciesDf, projectsDf, releasesDf)
 
-  // Build graph
-  val graph: Graph[VertexProperties, EdgeProperties] = Graph(vertexRDD.repartition(1200),
-                                                             edgeRDD.repartition(1000))
-    .partitionBy(PartitionStrategy.RandomVertexCut)
+    /**************
+    * Build graph *
+    **************/
+    // Build vertex RDD by merging Package and PackageState RDDs
+    val vertexRDD: RDD[(VertexId, VertexProperties)] = sc
+      .union(Seq(packageVertices.asInstanceOf[RDD[(VertexId, VertexProperties)]],
+        packageStateVertices.asInstanceOf[RDD[(VertexId, VertexProperties)]]))
+    vertexRDD.checkpoint()
 
-  /*****************
-  * Execute Pregel *
-  *****************/
-  // Execute Pregel program
-  val maxIterations: Int = properties.getProperty("pregel.maxIterations").toInt
-  val result: Graph[VertexProperties, EdgeProperties] = VulnerabilityScan.run(graph, maxIterations)
+    // Build edge RDD by merging SNAPSHOT and DEPENDS_ON RDDs
+    val edgeRDD: RDD[Edge[EdgeProperties]] = sc
+      .union(Seq(snapshotEdges.asInstanceOf[RDD[Edge[EdgeProperties]]],
+        dependsOnEdges.asInstanceOf[RDD[Edge[EdgeProperties]]]))
+    edgeRDD.checkpoint()
 
-  // Build propagated vulnerabilities dataframe
-  val resultDf: DataFrame = ResultDfBuilder.run(spark, result)
+    val vertIdBC = sc.broadcast(vertexRDD.map(_._1).collect)
+    edgeRDD.map(_.dstId).filter(vid => !vertIdBC.value.contains(vid))
 
-  // Save graph
-  if (properties.getProperty("save.graph") == "true"){
-    val vertexSavePath: String = properties.getProperty("save.vertex.path")
-    val edgeSavePath: String = properties.getProperty("save.edge.path")
-    Persistence.saveGraph(result, vertexSavePath, edgeSavePath)
+    // Build graph
+    val graph: Graph[VertexProperties, EdgeProperties] = Graph(vertexRDD.repartition(1200),
+      edgeRDD.repartition(1000))
+      .partitionBy(PartitionStrategy.RandomVertexCut)
+
+    /*****************
+    * Execute Pregel *
+    *****************/
+    // Execute Pregel program
+    val maxIterations: Int = properties.getProperty("pregel.maxIterations").toInt
+    val result: Graph[VertexProperties, EdgeProperties] = VulnerabilityScan.run(graph, maxIterations)
+
+    // Build propagated vulnerabilities dataframe
+    val resultDf: DataFrame = ResultDfBuilder.run(spark, result)
+
+    // Save graph
+    if (properties.getProperty("save.graph") == "true") {
+      val vertexSavePath: String = properties.getProperty("save.vertex.path")
+      val edgeSavePath: String = properties.getProperty("save.edge.path")
+      Persistence.saveGraph(result, vertexSavePath, edgeSavePath)
+    }
+
+    // Save propagated vulnerabilities dataframe
+    if (properties.getProperty("save.result") == "true") {
+      val resultSavePath: String = properties.getProperty("save.result.path")
+      Persistence.saveDfAsCsv(resultDf, resultSavePath)
+    }
+
+    val affectedpkg: Long = result.vertices
+      .map(_._2)
+      .filter(_.isInstanceOf[PackageVertex])
+      .map(_.asInstanceOf[PackageVertex])
+      .filter(_.vulnerabilities.length > 0)
+      .count
+    println("Affected package: " + affectedpkg.toString)
+
   }
 
-  // Save propagated vulnerabilities dataframe
-  if (properties.getProperty("save.result") == "true"){
-    val resultSavePath: String = properties.getProperty("save.result.path")
-    Persistence.saveDfAsCsv(resultDf, resultSavePath)
-  }
-
-  val affectedpkg: Long = result.vertices
-    .map(_._2)
-    .filter(_.isInstanceOf[PackageVertex])
-    .map(_.asInstanceOf[PackageVertex])
-    .filter(_.vulnerabilities.length > 0)
-    .count
-  println("Affected package: " + affectedpkg.toString)
 }
