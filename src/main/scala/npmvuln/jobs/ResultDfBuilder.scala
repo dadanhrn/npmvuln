@@ -1,7 +1,7 @@
 package npmvuln.jobs
 
 import org.apache.spark.graphx.Graph
-import org.apache.spark.sql.{DataFrame, SparkSession, Row, Dataset}
+import org.apache.spark.sql.{DataFrame, SparkSession, Row}
 import org.apache.spark.sql.types._
 import java.sql.Timestamp
 import java.time.{Duration, Instant}

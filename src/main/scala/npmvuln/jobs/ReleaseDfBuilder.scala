@@ -1,9 +1,9 @@
 package npmvuln.jobs
 
 import org.apache.spark.sql.{DataFrame, SparkSession}
-import org.apache.spark.sql.functions.{col, trim, lag, monotonically_increasing_id, udf}
+import org.apache.spark.sql.functions.{col, trim, lag, monotonically_increasing_id}
 import org.apache.spark.sql.types._
-import org.apache.spark.sql.expressions.{UserDefinedFunction, Window}
+import org.apache.spark.sql.expressions.Window
 import java.sql.Timestamp
 import npmvuln.helpers.constants.CENSOR_DATE
 
