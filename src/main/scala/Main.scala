@@ -98,12 +98,9 @@ object Main extends App {
         dependsOnEdges.asInstanceOf[RDD[Edge[EdgeProperties]]]))
     edgeRDD.checkpoint()
 
-    val vertIdBC = sc.broadcast(vertexRDD.map(_._1).collect)
-    edgeRDD.map(_.dstId).filter(vid => !vertIdBC.value.contains(vid))
-
     // Build graph
-    val graph: Graph[VertexProperties, EdgeProperties] = Graph(vertexRDD.repartition(1200),
-      edgeRDD.repartition(1000))
+    val graph: Graph[VertexProperties, EdgeProperties] = Graph(vertexRDD.repartition(2500),
+      edgeRDD.repartition(2000))
       .partitionBy(PartitionStrategy.RandomVertexCut)
 
     /*****************
