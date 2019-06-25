@@ -134,12 +134,6 @@ object Main extends App {
       .count
     println("Affected package: " + affectedpkg.toString)
 
-//    result.triplets.filter(_.dstAttr.isInstanceOf[PackageVertex]).filter(_.dstAttr.asInstanceOf[PackageVertex].packageName == "ungit").count
-//
-//    result.triplets.filter(_.dstAttr.isInstanceOf[PackageVertex]).filter(_.dstAttr.asInstanceOf[PackageVertex].packageName == "ungit")
-//      .flatMap(_.srcAttr.asInstanceOf[PackageStateVertex].)
-//
-//    result.vertices.filter(_._2.isInstanceOf[PackageStateVertex]).map(_._2.asInstanceOf[PackageStateVertex]).filter(_.packageName == "ungit").filter(_.vulnRecords.length > 0).map(_.)
-//  }
+  }
 
 }
