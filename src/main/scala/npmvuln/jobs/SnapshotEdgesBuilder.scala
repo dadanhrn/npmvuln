@@ -11,7 +11,7 @@ object SnapshotEdgesBuilder {
 
     // Join projects dataframe and releases dataframe
     projectsDf
-      .join(releasesDf, "Project")
+      .join(releasesDf, projectsDf("Project") === releasesDf("Project"))
 
       // Build edges and properties
       .map(row => {
