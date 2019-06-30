@@ -20,7 +20,7 @@ object Persistence {
   }
 
   def saveDfAsCsv(df: DataFrame, path: String): Unit = {
-    df.rdd.saveAsTextFile(path)
+    df.write.csv(path)
   }
 
 }
