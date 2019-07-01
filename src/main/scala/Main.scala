@@ -90,17 +90,18 @@ object Main extends App {
     val vertexRDD: RDD[(VertexId, VertexProperties)] = sc
       .union(Seq(packageVertices.asInstanceOf[RDD[(VertexId, VertexProperties)]],
         packageStateVertices.asInstanceOf[RDD[(VertexId, VertexProperties)]]))
+      .repartition(2500)
     vertexRDD.checkpoint()
 
     // Build edge RDD by merging SNAPSHOT and DEPENDS_ON RDDs
     val edgeRDD: RDD[Edge[EdgeProperties]] = sc
       .union(Seq(snapshotEdges.asInstanceOf[RDD[Edge[EdgeProperties]]],
         dependsOnEdges.asInstanceOf[RDD[Edge[EdgeProperties]]]))
+      .repartition(2000)
     edgeRDD.checkpoint()
 
     // Build graph
-    val graph: Graph[VertexProperties, EdgeProperties] = Graph(vertexRDD.repartition(2500),
-      edgeRDD.repartition(2000))
+    val graph: Graph[VertexProperties, EdgeProperties] = Graph(vertexRDD, edgeRDD)
       .partitionBy(PartitionStrategy.RandomVertexCut)
 
     /*****************
