@@ -39,7 +39,8 @@ object ReleaseDfBuilder {
       .withColumn("Release", trim(col("Release")))
 
       // Add ID field for every release (-1 downwards)
-      .withColumn("ReleaseId", row_number.over(Window.orderBy("Project", "Release")) * -1)
+      .withColumn("ReleaseId",
+        row_number.over(Window.orderBy("Project", "Release")).cast(LongType) * -1)
 
       // Add column for date of next release
       .withColumn("NextReleaseDate",
