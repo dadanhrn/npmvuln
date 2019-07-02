@@ -1,7 +1,7 @@
 package npmvuln.jobs
 
 import org.apache.spark.sql.{DataFrame, SparkSession}
-import org.apache.spark.sql.functions.{col, trim, lag, monotonically_increasing_id}
+import org.apache.spark.sql.functions.{col, trim, lag, row_number}
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.expressions.Window
 import java.sql.Timestamp
@@ -39,7 +39,7 @@ object ReleaseDfBuilder {
       .withColumn("Release", trim(col("Release")))
 
       // Add ID field for every release (-1 downwards)
-      .withColumn("ReleaseId", (monotonically_increasing_id + 1) * -1)
+      .withColumn("ReleaseId", row_number.over(Window.orderBy("Project", "Release")) * -1)
 
       // Add column for date of next release
       .withColumn("NextReleaseDate",

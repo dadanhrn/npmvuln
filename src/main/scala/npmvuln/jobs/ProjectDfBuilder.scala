@@ -1,7 +1,8 @@
 package npmvuln.jobs
 
 import org.apache.spark.sql.DataFrame
-import org.apache.spark.sql.functions.monotonically_increasing_id
+import org.apache.spark.sql.functions.row_number
+import org.apache.spark.sql.expressions.Window
 
 object ProjectDfBuilder {
 
@@ -15,6 +16,6 @@ object ProjectDfBuilder {
       .distinct
 
       // Add ID field for every package (0 upwards)
-      .withColumn("ProjectId", monotonically_increasing_id)
+      .withColumn("ProjectId", row_number.over(Window.orderBy("Project")) - 1)
   }
 }

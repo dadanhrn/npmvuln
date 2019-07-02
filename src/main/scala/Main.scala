@@ -102,7 +102,7 @@ object Main extends App {
 
     // Build graph
     val graph: Graph[VertexProperties, EdgeProperties] = Graph(vertexRDD, edgeRDD)
-      .partitionBy(PartitionStrategy.RandomVertexCut)
+      .partitionBy(PartitionStrategy.EdgePartition2D)
 
     /*****************
     * Execute Pregel *
