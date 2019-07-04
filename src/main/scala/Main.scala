@@ -115,9 +115,6 @@ object Main extends App {
     // Build propagated vulnerabilities dataframe
     val resultDf: DataFrame = ResultDfBuilder.run(spark, result)
 
-    import org.apache.spark.sql.functions.{max,min}
-    resultDf.groupBy("Id","Package").agg(max("To"), min("Since"))
-
     // Save graph
     if (properties.getProperty("save.graph") == "true") {
       val vertexSavePath: String = properties.getProperty("save.vertex.path")
