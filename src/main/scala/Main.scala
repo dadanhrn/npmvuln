@@ -108,11 +108,15 @@ object Main extends App {
     * Execute Pregel *
     *****************/
     // Execute Pregel program
-    val maxIterations: Int = properties.getProperty("pregel.maxIterations").toInt
+    var maxIterations: Int = properties.getProperty("pregel.maxIterations", "-1").toInt
+    maxIterations = if (maxIterations > 0) maxIterations else Int.MaxValue
     val result: Graph[VertexProperties, EdgeProperties] = VulnerabilityScan.run(graph, maxIterations)
 
     // Build propagated vulnerabilities dataframe
     val resultDf: DataFrame = ResultDfBuilder.run(spark, result)
+
+    import org.apache.spark.sql.functions.{max,min}
+    resultDf.groupBy("Id","Package").agg(max("To"), min("Since"))
 
     // Save graph
     if (properties.getProperty("save.graph") == "true") {
