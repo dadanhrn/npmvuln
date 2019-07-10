@@ -2,8 +2,10 @@ package npmvuln.jobs
 
 import org.apache.spark.sql.{DataFrame, Encoders}
 import org.apache.spark.rdd.RDD
-import org.apache.spark.graphx.{VertexId, Edge}
+import org.apache.spark.graphx.{Edge, VertexId}
 import npmvuln.props.DependsOnEdge
+
+import scala.reflect.ClassTag
 
 object DependsOnEdgesBuilder {
 
@@ -15,16 +17,14 @@ object DependsOnEdgesBuilder {
       .join(releasesDf, Seq("Project", "Release"))
 
       // Build edges and properties
-      .map(func = row => {
+      .map(row => {
         val dependentId: VertexId = row.getAs[VertexId]("ReleaseId")
         val dependencyId: VertexId = row.getAs[VertexId]("ProjectId")
         val constraint: String = row.getAs[String]("Constraint")
         val dependencyProp: DependsOnEdge = new DependsOnEdge(constraint)
 
         new Edge[DependsOnEdge](dependencyId, dependentId, dependencyProp)
-      }) (Encoders.kryo(classOf[Edge[DependsOnEdge]]))
+      }) (ClassTag(classOf[Edge[DependsOnEdge]]))
 
-      // Get RDD
-      .rdd
   }
 }

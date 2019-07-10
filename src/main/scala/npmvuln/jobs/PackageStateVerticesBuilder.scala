@@ -5,8 +5,11 @@ import org.apache.spark.sql.{DataFrame, Encoders}
 import org.apache.spark.graphx.VertexId
 import java.sql.Timestamp
 import java.time.Instant
+
 import org.threeten.extra.Interval
 import npmvuln.props._
+
+import scala.reflect.ClassTag
 
 object PackageStateVerticesBuilder {
 
@@ -27,11 +30,7 @@ object PackageStateVerticesBuilder {
         val packageStateVertex: PackageStateVertex = new PackageStateVertex(packageName, version, latestPeriod)
 
         (releaseId, packageStateVertex)
-      }) (Encoders.kryo(classOf[(VertexId, PackageStateVertex)]))
-
-
-      // Get RDD
-      .rdd
+      }) (ClassTag(classOf[(VertexId, PackageStateVertex)]))
 
       // Join with vulnerabilities RDD
       .leftOuterJoin(vulnProperties)

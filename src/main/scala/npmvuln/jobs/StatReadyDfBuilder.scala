@@ -1,10 +1,10 @@
 package npmvuln.jobs
 
-import org.apache.spark.sql.DataFrame
-import org.apache.spark.sql.expressions.UserDefinedFunction
+import org.apache.spark.sql.{DataFrame, UserDefinedFunction, expressions}
 import org.apache.spark.sql.functions.{col, floor, lit, max, min, udf}
 import org.threeten.extra.Interval
 import java.sql.Timestamp
+
 import npmvuln.helpers.constants.CENSOR_DATE
 
 object StatReadyDfBuilder {

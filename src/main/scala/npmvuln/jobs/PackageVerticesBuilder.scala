@@ -5,6 +5,8 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.graphx.VertexId
 import npmvuln.props.PackageVertex
 
+import scala.reflect.ClassTag
+
 object PackageVerticesBuilder {
 
   def build(projectDf: DataFrame): RDD[(VertexId, PackageVertex)] = {
@@ -19,10 +21,8 @@ object PackageVerticesBuilder {
         val packageVertex: PackageVertex = new PackageVertex(projectName)
 
         (projectId, packageVertex)
-      }) (Encoders.kryo(classOf[(VertexId, PackageVertex)]))
+      }) (ClassTag(classOf[(VertexId, PackageVertex)]))
 
-      // Get RDD
-      .rdd
   }
 
 }

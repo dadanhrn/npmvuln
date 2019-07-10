@@ -2,8 +2,10 @@ package npmvuln.jobs
 
 import org.apache.spark.sql.{DataFrame, Encoders}
 import org.apache.spark.rdd.RDD
-import org.apache.spark.graphx.{VertexId, Edge}
+import org.apache.spark.graphx.{Edge, VertexId}
 import npmvuln.props.SnapshotEdge
+
+import scala.reflect.ClassTag
 
 object SnapshotEdgesBuilder {
 
@@ -22,9 +24,7 @@ object SnapshotEdgesBuilder {
         val snapshotProp: SnapshotEdge = new SnapshotEdge(packageName, version)
 
         new Edge[SnapshotEdge](packageStateId, packageId, snapshotProp)
-      }) (Encoders.kryo(classOf[Edge[SnapshotEdge]]))
+      }) (ClassTag(classOf[Edge[SnapshotEdge]]))
 
-      // Get RDD
-      .rdd
   }
 }
