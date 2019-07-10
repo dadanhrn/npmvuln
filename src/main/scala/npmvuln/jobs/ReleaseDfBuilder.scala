@@ -20,7 +20,7 @@ object ReleaseDfBuilder {
 
     // Define format
     spark.read
-      .format("csv")
+      .format("com.databricks.spark.csv")
 
       // Define that CSV has header
       .option("header", "true")

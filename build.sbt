@@ -12,6 +12,7 @@ libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-graphx" % "1.6.2" % Provided,
   "org.apache.spark" %% "spark-sql" % "1.6.2" % Provided,
 
+  "com.databricks" %% "spark-csv"  % "1.5.0",
   "com.github.gundy" % "semver4j" % "0.16.4",
   "org.threeten" % "threeten-extra" % "1.5.0"
 )
