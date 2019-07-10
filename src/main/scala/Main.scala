@@ -2,7 +2,8 @@ import java.io.FileInputStream
 
 import org.apache.spark.SparkContext
 import org.apache.spark.SparkConf
-import org.apache.spark.sql.{DataFrame, SQLContext}
+import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.hive.HiveContext
 import org.apache.spark.graphx.{Edge, Graph, PartitionStrategy, VertexId}
 import org.apache.spark.rdd.RDD
 import java.util.Properties
@@ -37,7 +38,7 @@ object Main extends App {
       ))
 
     val sc: SparkContext = new SparkContext(conf)
-    val spark: SQLContext = SQLContext.getOrCreate(sc)
+    val spark: HiveContext = new HiveContext(sc)
 
     val checkpointDir: String = properties.getProperty("sc.checkpointDir")
     sc.setCheckpointDir(checkpointDir)
