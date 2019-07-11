@@ -109,7 +109,8 @@ object Main extends App {
     *****************/
     // Execute Pregel program
     var maxIterations: Int = properties.getProperty("pregel.maxIterations").toInt
-    val result: Graph[VertexProperties, EdgeProperties] = VulnerabilityScan.run(graph, maxIterations)
+//    val result: Graph[VertexProperties, EdgeProperties] = VulnerabilityScan.run(graph, maxIterations)
+    val result: Graph[VertexProperties, EdgeProperties] = VulnerabilityScan1.run(graph)
 
     // Build propagated vulnerabilities dataframe
     val resultDf: DataFrame = ResultDfBuilder.run(spark, result)
