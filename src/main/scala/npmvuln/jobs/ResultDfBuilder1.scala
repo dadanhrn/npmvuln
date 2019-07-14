@@ -4,8 +4,9 @@ import java.sql.Timestamp
 
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.expressions.UserDefinedFunction
-import org.apache.spark.sql.functions.{col, udf}
+import org.apache.spark.sql.functions.{col, max, min, udf}
 import java.time.Duration
+
 import npmvuln.helpers.constants.CENSOR_DATE
 
 object ResultDfBuilder1 {
@@ -13,8 +14,10 @@ object ResultDfBuilder1 {
     Duration.between(start_date.toInstant, end_date.toInstant).toDays
   })
 
-  def build(advisoryDf: DataFrame, scannedDf: DataFrame): DataFrame = {
+  def build(scannedDf: DataFrame): DataFrame = {
     scannedDf
+      .groupBy("Id", "Project", "Release", "Level")
+      .agg(min("StartDate").as("StartDate"), max("EndDate").as("EndDate"))
       .withColumn("Duration", getDuration(col("StartDate"), col("EndDate")))
       .withColumn("Uncensored", col("EndDate") =!= Timestamp.from(CENSOR_DATE))
       .withColumnRenamed("StartDate", "Since")

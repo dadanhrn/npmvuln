@@ -64,10 +64,15 @@ object Main extends App {
     ***********************************/
     val scannedDf: DataFrame = VulnerabilityScan2.run(releasesDf, dependenciesDf, advisoryDf)
 
+    if (properties.getProperty("save.scanned", "false") == "true") {
+      val scannedSavePath: String = properties.getProperty("save.scanned.path")
+      Persistence.saveDfAsCsv(scannedDf, scannedSavePath)
+    }
+
     /*****************
     * Tidy up result *
     *****************/
-    val resultDf: DataFrame = ResultDfBuilder1.build(advisoryDf, scannedDf)
+    val resultDf: DataFrame = ResultDfBuilder1.build(scannedDf)
 
     if (properties.getProperty("save.result") == "true") {
       val resultSavePath: String = properties.getProperty("save.result.path")
