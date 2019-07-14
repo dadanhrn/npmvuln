@@ -62,7 +62,8 @@ object Main extends App {
     /***********************************
     * Run recursive vulnerability scan *
     ***********************************/
-    val scannedDf: DataFrame = VulnerabilityScan2.run(releasesDf, dependenciesDf, advisoryDf)
+    val maxLevel: Int = properties.getProperty("pregel.maxIterations").toInt
+    val scannedDf: DataFrame = VulnerabilityScan2.run(releasesDf, dependenciesDf, advisoryDf, maxLevel)
       .checkpoint
 
     if (properties.getProperty("save.scanned", "false") == "true") {
