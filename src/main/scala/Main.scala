@@ -47,22 +47,23 @@ object Main extends App {
     // Build advisory dataframe
     val advisoryPath: String = properties.getProperty("data.advisory")
     val advisoryDf: DataFrame = AdvisoryDfBuilder.build(spark, advisoryPath)
+      .checkpoint
 
     // Build release dataframe from libio-versions.csv
     val libioVersionsPath: String = properties.getProperty("data.versions")
     val releasesDf: DataFrame = ReleaseDfBuilder.build(spark, libioVersionsPath)
-
-    // Build project dataframe from release dataframe
-    val projectsDf: DataFrame = ProjectDfBuilder.build(releasesDf)
+      .checkpoint
 
     // Build dependencies dataframe from libio-dependencies.csv
     val libioDependenciesPath: String = properties.getProperty("data.dependencies")
     val dependenciesDf: DataFrame = DependenciesDfBuilder.build(spark, libioDependenciesPath)
+      .checkpoint
 
     /***********************************
-    * Run iterative vulnerability scan *
+    * Run recursive vulnerability scan *
     ***********************************/
     val scannedDf: DataFrame = VulnerabilityScan2.run(releasesDf, dependenciesDf, advisoryDf)
+      .checkpoint
 
     if (properties.getProperty("save.scanned", "false") == "true") {
       val scannedSavePath: String = properties.getProperty("save.scanned.path")
