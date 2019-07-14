@@ -15,7 +15,6 @@ object ResultDfBuilder1 {
 
   def build(advisoryDf: DataFrame, scannedDf: DataFrame): DataFrame = {
     scannedDf
-      .join(advisoryDf, "Id")
       .withColumn("Duration", getDuration(col("StartDate"), col("EndDate")))
       .withColumn("Uncensored", col("EndDate") =!= Timestamp.from(CENSOR_DATE))
       .withColumnRenamed("StartDate", "Since")
