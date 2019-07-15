@@ -1,6 +1,7 @@
 package npmvuln.jobs
 
-import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.hive.HiveContext
 import org.apache.spark.sql.types._
 
 object ScannedDfBuilder {
@@ -17,17 +18,17 @@ object ScannedDfBuilder {
     StructField("Level", IntegerType, false)
   ))
 
-  def build(spark: SparkSession, path: String): DataFrame = {
+  def build(spark: HiveContext, path: String): DataFrame = {
     spark.read
 
       // Define format
-      .format("csv")
+      .format("com.databricks.spark.csv")
 
       // Define that CSV has header
-      .option("header", false)
+      .option("header", "false")
 
       // Define format for Timestamp type
-      .option("timestampFormat", "yyyy-MM-dd hh:mm:ss z")
+      .option("dateFormat", "yyyy-MM-dd hh:mm:ss z")
 
       // Assign schema
       .schema(vulnDfSchema)

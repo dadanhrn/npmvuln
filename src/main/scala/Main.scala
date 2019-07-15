@@ -2,12 +2,13 @@ import java.io.FileInputStream
 
 import org.apache.spark.SparkContext
 import org.apache.spark.SparkConf
-import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.spark.sql.DataFrame
 import org.apache.spark.graphx.{Edge, VertexId}
 import java.util.Properties
 
 import npmvuln.jobs._
 import npmvuln.props._
+import org.apache.spark.sql.hive.HiveContext
 
 object Main extends App {
 
@@ -36,7 +37,7 @@ object Main extends App {
       ))
 
     val sc: SparkContext = new SparkContext(conf)
-    val spark: SparkSession = SparkSession.builder.config(conf).getOrCreate
+    val spark: HiveContext = new HiveContext(sc)
 
     val checkpointDir: String = properties.getProperty("sc.checkpointDir")
     sc.setCheckpointDir(checkpointDir)
@@ -47,24 +48,20 @@ object Main extends App {
     // Build advisory dataframe
     val advisoryPath: String = properties.getProperty("data.advisory")
     val advisoryDf: DataFrame = AdvisoryDfBuilder.build(spark, advisoryPath)
-      .checkpoint
 
     // Build release dataframe from libio-versions.csv
     val libioVersionsPath: String = properties.getProperty("data.versions")
     val releasesDf: DataFrame = ReleaseDfBuilder.build(spark, libioVersionsPath)
-      .checkpoint
 
     // Build dependencies dataframe from libio-dependencies.csv
     val libioDependenciesPath: String = properties.getProperty("data.dependencies")
     val dependenciesDf: DataFrame = DependenciesDfBuilder.build(spark, libioDependenciesPath)
-      .checkpoint
 
     /***********************************
     * Run recursive vulnerability scan *
     ***********************************/
     val maxLevel: Int = properties.getProperty("pregel.maxIterations").toInt
     val scannedDf: DataFrame = VulnerabilityScan2.run(releasesDf, dependenciesDf, advisoryDf, maxLevel)
-      .checkpoint
 
     if (properties.getProperty("save.scanned", "false") == "true") {
       val scannedSavePath: String = properties.getProperty("save.scanned.path")

@@ -1,11 +1,13 @@
 package npmvuln.jobs
 
-import org.apache.spark.sql.{DataFrame, SparkSession}
-import org.apache.spark.sql.functions.{col, trim, lag, row_number}
+import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.functions.{col, lead, trim}
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.expressions.Window
 import java.sql.Timestamp
+
 import npmvuln.helpers.constants.CENSOR_DATE
+import org.apache.spark.sql.hive.HiveContext
 
 object ReleaseDfBuilder {
 
@@ -16,17 +18,17 @@ object ReleaseDfBuilder {
     StructField("Date", TimestampType, false)
   ))
 
-  def build(spark: SparkSession, path: String): DataFrame = {
+  def build(spark: HiveContext, path: String): DataFrame = {
 
     // Define format
     spark.read
-      .format("csv")
+      .format("com.databricks.spark.csv")
 
       // Define that CSV has header
-      .option("header", true)
+      .option("header", "true")
 
       // Define format for Timestamp type
-      .option("timestampFormat", "yyyy-MM-dd hh:mm:ss z")
+      .option("dateFormat", "yyyy-MM-dd hh:mm:ss z")
 
       // Assign schema
       .schema(this.libioVersionsSchema)
@@ -40,7 +42,7 @@ object ReleaseDfBuilder {
 
       // Add column for date of next release
       .withColumn("NextReleaseDate",
-        lag("Date", -1, Timestamp.from(CENSOR_DATE))
+        lead("Date", 1, Timestamp.from(CENSOR_DATE))
           .over(Window.partitionBy("Project").orderBy("Date")))
 
   }

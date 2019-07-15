@@ -1,8 +1,9 @@
 package npmvuln.jobs
 
-import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.functions.{col, trim}
+import org.apache.spark.sql.hive.HiveContext
 
 object AdvisoryDfBuilder {
   val advisorySchema: StructType = StructType(Array(
@@ -17,17 +18,17 @@ object AdvisoryDfBuilder {
     StructField("Versions", StringType, false)
   ))
 
-  def build(spark: SparkSession, path: String): DataFrame = {
+  def build(spark: HiveContext, path: String): DataFrame = {
     spark.read
 
       // Define format
-      .format("csv")
+      .format("com.databricks.spark.csv")
 
       // Define that CSV has header
-      .option("header", true)
+      .option("header", "true")
 
       // Define format for Date type
-      .option("timestampFormat", "yyyy-MM-dd")
+      .option("dateFormat", "yyyy-MM-dd")
 
       // Assign schema
       .schema(this.advisorySchema)
@@ -45,8 +46,8 @@ object AdvisoryDfBuilder {
       .withColumn("Versions", trim(col("Versions")))
 
       // Remove malicious packages
-      .filter(col("Name") =!= "Malicious Package")
-      .filter(col("Versions") =!= "*")
+      .filter(col("Name") !== "Malicious Package")
+      .filter(col("Versions") !== "*")
 
   }
 }
