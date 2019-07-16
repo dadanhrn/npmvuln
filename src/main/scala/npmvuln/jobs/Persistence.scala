@@ -20,7 +20,10 @@ object Persistence {
   }
 
   def saveDfAsCsv(df: DataFrame, path: String): Unit = {
-    df.write.format("com.databricks.spark.csv").save(path)
+    df.write
+      .format("com.databricks.spark.csv")
+      .option("dateFormat", "yyyy-MM-dd hh:mm:ss z")
+      .save(path)
   }
 
 }
