@@ -18,6 +18,7 @@ object ResultDfBuilder1 {
     scannedDf
       .withColumn("Duration", getDuration(col("StartDate"), col("EndDate")))
       .withColumn("Uncensored", col("EndDate") =!= Timestamp.from(CENSOR_DATE))
+      .withColumnRenamed("Project", "Package")
       .withColumnRenamed("StartDate", "Since")
       .withColumnRenamed("EndDate", "To")
       .select("Id", "Name", "Severity", "Package", "Release",
