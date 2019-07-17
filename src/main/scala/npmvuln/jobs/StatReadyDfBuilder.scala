@@ -22,12 +22,12 @@ object StatReadyDfBuilder {
     resultDf
 
       // Group aggregation by vulnerability ID and package they're on
-      .groupBy("Id", "Package")
+      .groupBy("Id", "Package", "Level")
 
       // Get earliest and latest date of vulnerability occurence in each package
       .agg(min("Since").as("Since"), max("To").as("To"))
 
-      // Calculate difference between latest and earliest occurence
+      // Calculate difference between latest and earliest occurence in month (30 days)
       .withColumn("Duration", floor(getDurationInDay(col("Since"), col("To")) / 30))
 
       // Get censor status (1 for observed, 0 for censored)
