@@ -3,7 +3,6 @@ package npmvuln.jobs
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.expressions.UserDefinedFunction
 import org.apache.spark.sql.functions.{datediff, col, floor, lit, max, min, udf, when}
-import org.threeten.extra.Interval
 import java.sql.Timestamp
 import npmvuln.helpers.constants.CENSOR_DATE
 
@@ -18,9 +17,6 @@ object StatReadyDfBuilder {
 
       // Get earliest and latest date of vulnerability occurence in each package
       .agg(min("StartDate").as("StartDate"), max("EndDate").as("EndDate"))
-
-      // Calculate difference between latest and earliest occurence in month (30 days)
-      .withColumn("Duration", floor(col("Duration") / 30))
 
       // Get censor status (1 for observed, 0 for censored)
       .withColumn("Uncensored", when(col("EndDate") =!= Timestamp.from(CENSOR_DATE), 1).otherwise(0))
