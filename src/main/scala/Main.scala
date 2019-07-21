@@ -66,20 +66,15 @@ object Main extends App {
     val scannedDf: DataFrame = VulnerabilityScan2.run(releasesDf, dependenciesDf, advisoryDf, maxLevel)
       .checkpoint
 
-    if (properties.getProperty("save.scanned", "false") == "true") {
-      val scannedSavePath: String = properties.getProperty("save.scanned.path")
-      Persistence.saveDfAsCsv(scannedDf, scannedSavePath)
-    }
+    val scannedSavePath: String = properties.getProperty("save.scanned.path")
+    Persistence.saveDfAsCsv(scannedDf, scannedSavePath)
 
-    /*****************
-    * Tidy up result *
-    *****************/
-    val resultDf: DataFrame = ResultDfBuilder1.build(scannedDf)
-
-    if (properties.getProperty("save.result") == "true") {
-      val resultSavePath: String = properties.getProperty("save.result.path")
-      Persistence.saveDfAsCsv(resultDf, resultSavePath)
-    }
+    /******************************
+    * Build result for statistics *
+    ******************************/
+    val resultDf: DataFrame = StatReadyDfBuilder.build(scannedDf)
+    val resultSavePath: String = properties.getProperty("save.result.path")
+    Persistence.saveDfAsCsv(resultDf, resultSavePath)
 
   }
 

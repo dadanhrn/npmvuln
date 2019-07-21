@@ -2,20 +2,12 @@ package npmvuln.jobs
 
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.expressions.UserDefinedFunction
-import org.apache.spark.sql.functions.{col, floor, lit, max, min, udf}
+import org.apache.spark.sql.functions.{datediff, col, floor, lit, max, min, udf, when}
 import org.threeten.extra.Interval
 import java.sql.Timestamp
 import npmvuln.helpers.constants.CENSOR_DATE
 
 object StatReadyDfBuilder {
-  val getDurationInDay: UserDefinedFunction = udf[Int, Timestamp, Timestamp]((since, to) => {
-    Interval.of(since.toInstant, to.toInstant).toDuration.toDays.toInt
-  })
-
-  val getCensorStatus: UserDefinedFunction = udf[Int, Timestamp](endTime => {
-    if (endTime.toInstant == CENSOR_DATE) 0 else 1
-  })
-
   def build(resultDf: DataFrame): DataFrame = {
 
     // Source dataframe
@@ -25,12 +17,12 @@ object StatReadyDfBuilder {
       .groupBy("Id", "Package", "Level")
 
       // Get earliest and latest date of vulnerability occurence in each package
-      .agg(min("Since").as("Since"), max("To").as("To"))
+      .agg(min("StartDate").as("StartDate"), max("EndDate").as("EndDate"))
 
       // Calculate difference between latest and earliest occurence in month (30 days)
-      .withColumn("Duration", floor(getDurationInDay(col("Since"), col("To")) / 30))
+      .withColumn("Duration", floor(col("Duration") / 30))
 
       // Get censor status (1 for observed, 0 for censored)
-      .withColumn("Uncensored", getCensorStatus(col("To")))
+      .withColumn("Uncensored", when(col("EndDate") =!= Timestamp.from(CENSOR_DATE), 1).otherwise(0))
   }
 }

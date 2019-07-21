@@ -16,12 +16,9 @@ object ResultDfBuilder1 {
 
   def build(scannedDf: DataFrame): DataFrame = {
     scannedDf
-      .withColumn("Duration", getDuration(col("StartDate"), col("EndDate")))
-      .withColumn("Uncensored", col("EndDate") =!= Timestamp.from(CENSOR_DATE))
-      .withColumnRenamed("Project", "Package")
       .withColumnRenamed("StartDate", "Since")
       .withColumnRenamed("EndDate", "To")
-      .select("Id", "Name", "Severity", "Package", "Release",
-        "Since", "To", "Duration", "Uncensored", "Level")
+      .select("Id", "Name", "Severity", "Project", "Release",
+        "Since", "To", "Duration", "Level")
   }
 }

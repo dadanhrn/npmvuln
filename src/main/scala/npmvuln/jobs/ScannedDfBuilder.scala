@@ -14,6 +14,7 @@ object ScannedDfBuilder {
     StructField("Severity", StringType, false),
     StructField("StartDate", TimestampType, false),
     StructField("EndDate", TimestampType, false),
+    StructField("Duration", IntegerType, false),
     StructField("Level", IntegerType, false)
   ))
 
