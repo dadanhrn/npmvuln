@@ -13,7 +13,7 @@ object StatReadyDfBuilder {
     resultDf
 
       // Group aggregation by vulnerability ID and package they're on
-      .groupBy("Id", "Project", "Level", "Duration")
+      .groupBy("Id", "Project", "Level")
 
       // Get earliest and latest date of vulnerability occurence in each package
       .agg(min("StartDate").as("StartDate"), max("EndDate").as("EndDate"))
