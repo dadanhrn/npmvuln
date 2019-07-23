@@ -22,6 +22,6 @@ object StatReadyDfBuilder {
       .withColumn("Uncensored", when(col("EndDate") < Timestamp.from(CENSOR_DATE), 1).otherwise(0))
 
       // Reorder columns
-      .select("Id", "Package", "Level", "StartDate", "EndDate", "Duration", "Uncensored")
+      .select("Id", "Project", "Level", "StartDate", "EndDate", "Duration", "Uncensored")
   }
 }
