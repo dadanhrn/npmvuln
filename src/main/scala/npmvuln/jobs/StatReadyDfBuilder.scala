@@ -20,5 +20,8 @@ object StatReadyDfBuilder {
 
       // Get censor status (1 for observed, 0 for censored)
       .withColumn("Uncensored", when(col("EndDate") < Timestamp.from(CENSOR_DATE), 1).otherwise(0))
+
+      // Reorder columns
+      .select("Id", "Package", "Level", "StartDate", "EndDate", "Duration", "Uncensored")
   }
 }
