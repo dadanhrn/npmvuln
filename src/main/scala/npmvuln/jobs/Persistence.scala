@@ -20,9 +20,7 @@ object Persistence {
   }
 
   def saveDfAsCsv(df: DataFrame, path: String): Unit = {
-    df.write
-      .option("timestampFormat", "yyyy-MM-dd hh:mm:ss z")
-      .csv(path)
+    df.write.csv(path)
   }
 
 }
