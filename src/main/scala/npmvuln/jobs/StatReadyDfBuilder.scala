@@ -13,7 +13,7 @@ object StatReadyDfBuilder {
     resultDf
 
       // Group aggregation by vulnerability ID and package they're on
-      .groupBy("Id", "Project", "Level")
+      .groupBy("Id", "Project", "Level", "Severity")
 
       // Get earliest and latest date of vulnerability occurence in each package
       .agg(min("StartDate").as("StartDate"), max("EndDate").as("EndDate"))
@@ -25,6 +25,6 @@ object StatReadyDfBuilder {
       .withColumn("Uncensored", when(col("EndDate") < Timestamp.from(CENSOR_DATE), 1).otherwise(0))
 
       // Reorder columns
-      .select("Id", "Project", "Level", "StartDate", "EndDate", "Duration", "Uncensored")
+      .select("Id", "Project", "Level", "Severity", "StartDate", "EndDate", "Duration", "Uncensored")
   }
 }
