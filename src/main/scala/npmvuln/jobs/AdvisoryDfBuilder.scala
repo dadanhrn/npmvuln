@@ -44,9 +44,5 @@ object AdvisoryDfBuilder {
       .withColumn("Severity", trim(col("Severity")))
       .withColumn("Versions", trim(col("Versions")))
 
-      // Remove malicious packages
-      .filter(col("Name") =!= "Malicious Package")
-      .filter(col("Versions") =!= "*")
-
   }
 }
