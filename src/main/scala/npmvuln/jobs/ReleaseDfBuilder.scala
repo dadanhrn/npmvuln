@@ -1,7 +1,7 @@
 package npmvuln.jobs
 
 import org.apache.spark.sql.{DataFrame, SparkSession}
-import org.apache.spark.sql.functions.{col, trim, lag, row_number}
+import org.apache.spark.sql.functions.{col, trim, lead}
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.expressions.Window
 import java.sql.Timestamp
@@ -40,7 +40,7 @@ object ReleaseDfBuilder {
 
       // Add column for date of next release
       .withColumn("NextReleaseDate",
-        lag("Date", -1, Timestamp.from(CENSOR_DATE))
+        lead("Date", 1, Timestamp.from(CENSOR_DATE))
           .over(Window.partitionBy("Project").orderBy("Date")))
 
   }

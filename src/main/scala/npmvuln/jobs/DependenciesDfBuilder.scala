@@ -24,7 +24,7 @@ object DependenciesDfBuilder {
       .option("header", true)
 
       // Assign schema
-      .schema(this.libioDepedenciesSchema)
+      .schema(libioDepedenciesSchema)
 
       // Load file
       .load(path)
